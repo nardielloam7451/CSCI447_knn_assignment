@@ -57,8 +57,9 @@ public class KNearestNeighbor {
 		}
 		// sort the vote map
 		AbstractMap<String,Integer> sortedVoteMap = voteMap.entrySet().stream().sorted(comparingByValue()).collect(toMap(e -> e.getKey(), e -> e.getValue(), (e1, e2) -> e2, LinkedHashMap::new));
-		String classification = sortedVoteMap.keySet().toArray()[0].toString();
-		
+		int size = sortedVoteMap.keySet().toArray().length - 1; // Last element in the set is the one with most votes
+		String classification = sortedVoteMap.keySet().toArray()[size].toString();
+		printVoteMap(sortedVoteMap);
 		System.out.println("Classification = " + classification);
 		return classification;
 	}
@@ -67,7 +68,14 @@ public class KNearestNeighbor {
 		
 	}
 	
-	public void printMap(AbstractMap<Integer,Double> m) {
+	private void printVoteMap(AbstractMap<String, Integer> m) {
+		Object[] keys = m.keySet().toArray();
+		for (Object key : keys) {
+			System.out.printf("Class: %s, value: %d%n", key.toString(), m.get(key));
+		}
+	}
+	
+	private void printMap(AbstractMap<Integer,Double> m) {
 		Object[] keys = m.keySet().toArray();
 		for (int i = 0; i < m.size(); i++) {
 			System.out.printf("Key: %s Value: %s%n", keys[i].toString(), m.get(keys[i]));
