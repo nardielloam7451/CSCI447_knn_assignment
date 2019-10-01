@@ -4,6 +4,6 @@ import java.util.ArrayList;
 
 public interface Distance {
 	
-	public double getDistance(ArrayList<Double> targetVector, ArrayList<Double> featureVector);
+	public double getDistance(ArrayList<Object> targetVector, ArrayList<Object> featureVector);
 
 }
