@@ -26,7 +26,7 @@ public class KNearestNeighbor {
 	}
 	
 	
-	public void classify(ArrayList<Object> objectToClassify) {
+	public String classify(ArrayList<Object> objectToClassify) {
 		// Find the k nearest neighbors to this object
 		AbstractMap<Integer,Double> distanceMap = new HashMap<Integer,Double>();
 		for (int i = 0; i < trainingSet.size(); i++) {
@@ -34,12 +34,33 @@ public class KNearestNeighbor {
 			distanceMap.put(i, distance);
 		}
 		// sort the hash map
+		// magic lambda wizardry, thanks https://www.baeldung.com/java-hashmap-sort
 		AbstractMap<Integer,Double> sorted = distanceMap.entrySet().stream().sorted(comparingByValue()).collect(toMap(e -> e.getKey(), e -> e.getValue(), (e1, e2) -> e2, LinkedHashMap::new));
 		
-		System.out.println("Unsorted ------------");
+		/*System.out.println("Unsorted ------------");
 		printMap(distanceMap);
 		System.out.printf("%n%nSorted ---------%n");
-		printMap(sorted);
+		printMap(sorted);*/
+		Object[] sortedKeys = sorted.keySet().toArray();
+		AbstractMap<String, Integer> voteMap = new HashMap<String, Integer>();
+		// Put the first k values into the voteMap
+		for (int i = 0; i < k; i++) {
+			int key = (int) sortedKeys[i];
+			// Get class 
+			String attributeClass = trainingSet.get(key).get(trainingSet.get(key).size() - 1).toString();
+			if (voteMap.get(attributeClass) != null) {
+				int tally = voteMap.get(attributeClass);
+				voteMap.put(attributeClass, tally+1);
+			} else {
+				voteMap.put(attributeClass, 1);
+			}
+		}
+		// sort the vote map
+		AbstractMap<String,Integer> sortedVoteMap = voteMap.entrySet().stream().sorted(comparingByValue()).collect(toMap(e -> e.getKey(), e -> e.getValue(), (e1, e2) -> e2, LinkedHashMap::new));
+		String classification = sortedVoteMap.keySet().toArray()[0].toString();
+		
+		System.out.println("Classification = " + classification);
+		return classification;
 	}
 	
 	public void regress() {
@@ -52,4 +73,6 @@ public class KNearestNeighbor {
 			System.out.printf("Key: %s Value: %s%n", keys[i].toString(), m.get(keys[i]));
 		}
 	}
+	
+
 }

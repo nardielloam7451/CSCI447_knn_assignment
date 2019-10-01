@@ -18,6 +18,7 @@ public class EuclidianDistance implements Distance {
 			} catch (Exception e) {
 				// We are dealing with strings rather than double values
 				if (targetVector.get(i).toString().equals(featureVector.get(i).toString())) {
+					
 					firstVal = 0; // Same strings, same distance apart
 				} else {
 					firstVal = 1.0; // Different strings, different distances
