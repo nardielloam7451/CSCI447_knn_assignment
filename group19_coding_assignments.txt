@@ -1,0 +1,6 @@
+KNN: Robert Lewis
+CNN: Norhan Abbas
+ENN: 
+K-Means: 
+PAM: 
+Loss Functions: Anthony Nardiello
