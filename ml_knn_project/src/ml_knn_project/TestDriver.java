@@ -37,7 +37,7 @@ public class TestDriver {
 		KNearestNeighbor knn = new KNearestNeighbor(trainingSet, testSet, 5, null, null);
 		long startTime = System.nanoTime();
 		for (int i = 0; i < testSet.size(); i++) {
-			knn.classify(testSet.get(i));
+			knn.classify(testSet.get(i), trainingSet);
 		}
 		long endTime = System.nanoTime();
 		long duration = (endTime - startTime) * 1/1000000;

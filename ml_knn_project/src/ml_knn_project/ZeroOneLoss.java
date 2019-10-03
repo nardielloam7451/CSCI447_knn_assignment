@@ -1,5 +1,6 @@
 package ml_knn_project;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList; //imports the ArrayList Data structure, which is used to store values from our test set. 
 
 public class ZeroOneLoss {
@@ -16,8 +17,8 @@ public class ZeroOneLoss {
 	
 	public void evaluation(String guess, String accurateClass) {
 		//takes in the actual class name , and the algorithms guess and compares them. 
-		testClass=accUrateClass;
-		if(algGuess.compareTo(testClass)==0) {//looks to see if the class is correctly identified. If it is, returns 0 and otherwise increase the count of false_value by one and then returns false_value
+		testClass=accurateClass;
+		if(guess.compareTo(testClass)==0) {//looks to see if the class is correctly identified. If it is, returns 0 and otherwise increase the count of false_value by one and then returns false_value
 			return;
 		}
 		else {
@@ -27,7 +28,7 @@ public class ZeroOneLoss {
 	}
 	
 	public void makeCalculations() {//this method takes in the false values, and then calculates an error rate based upon the false values and the number of total classes in the test value. 
-		calculation=(double)((false_value*100)/(te_matrix.size()));
+		//calculation=(double)((false_value*100)/(te_matrix.size()));
 	}
 	
 	public void printError() {//this method takes the errorCalculations for a test set, and prints it into the screen. 

@@ -1,8 +1,20 @@
+package ml_knn_project;
+
 import java.util.ArrayList;
 
 public class CNN extends KNearestNeighbor{
 
-    public void CondensedNN(ArrayList<ArrayList<Object>> ourSet) {
+    public CNN(ArrayList<ArrayList<Object>> trainingSet, ArrayList<ArrayList<Object>> testSet, int k,
+			ZeroOneLoss zeroOne, MeanSquaredError mse) {
+		super(trainingSet, testSet, k, zeroOne, mse);
+		// TODO Auto-generated constructor stub
+	}
+    
+    public void buildModel() {
+    	buildModel(trainingSet);
+    }
+
+	public void buildModel(ArrayList<ArrayList<Object>> ourSet) {
 
 
         // one example from each class of the training set is added to KNN classifier
@@ -32,19 +44,18 @@ public class CNN extends KNearestNeighbor{
             // get the nearest data point
             double minDistance = Double.MAX_VALUE;
             int minIndex = -1;
-            int p;
             Distance euclidianDistance = new EuclidianDistance();
-            for (p = 0; p < newSet.size(); p++) {
+            for (int p = 0; p < newSet.size(); p++) {
                 double distance = euclidianDistance.getDistance(newSet.get(p), pointTested);
                 if (distance < minDistance) {
                     minDistance = distance;
                     minIndex = p;
                 }
             }
-            nearestPoint = ourSet.get(p);
+            nearestPoint = ourSet.get(minIndex);
 
             // check if that nearest data point is classified incorrectly
-            if (!classify(nearestPoint).equals(nearestPoint)) {
+            if (!classify(nearestPoint, newSet).equals(nearestPoint)) {
                 newSet.add(nearestPoint);
                 pointTested = nearestPoint;
             }

@@ -26,11 +26,11 @@ public class KNearestNeighbor {
 	}
 	
 	
-	public String classify(ArrayList<Object> objectToClassify) {
+	public String classify(ArrayList<Object> objectToClassify, ArrayList<ArrayList<Object>> knnModelSpace) {
 		// Find the k nearest neighbors to this object
 		AbstractMap<Integer,Double> distanceMap = new HashMap<Integer,Double>();
-		for (int i = 0; i < trainingSet.size(); i++) {
-			double distance = distanceFunction.getDistance(objectToClassify, trainingSet.get(i));
+		for (int i = 0; i < knnModelSpace.size(); i++) {
+			double distance = distanceFunction.getDistance(objectToClassify, knnModelSpace.get(i));
 			distanceMap.put(i, distance);
 		}
 		// sort the hash map
@@ -47,7 +47,7 @@ public class KNearestNeighbor {
 		for (int i = 0; i < k; i++) {
 			int key = (int) sortedKeys[i];
 			// Get class 
-			String attributeClass = trainingSet.get(key).get(trainingSet.get(key).size() - 1).toString();
+			String attributeClass = knnModelSpace.get(key).get(knnModelSpace.get(key).size() - 1).toString();
 			if (voteMap.get(attributeClass) != null) {
 				int tally = voteMap.get(attributeClass);
 				voteMap.put(attributeClass, tally+1);
