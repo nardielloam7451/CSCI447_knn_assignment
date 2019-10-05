@@ -25,6 +25,9 @@ public class KNearestNeighbor {
 		distanceFunction = new EuclidianDistance();
 	}
 	
+	public String classify(ArrayList<Object> objectToClassify) {
+		return classify(objectToClassify, trainingSet);
+	}
 	
 	public String classify(ArrayList<Object> objectToClassify, ArrayList<ArrayList<Object>> knnModelSpace) {
 		// Find the k nearest neighbors to this object
@@ -59,8 +62,8 @@ public class KNearestNeighbor {
 		AbstractMap<String,Integer> sortedVoteMap = voteMap.entrySet().stream().sorted(comparingByValue()).collect(toMap(e -> e.getKey(), e -> e.getValue(), (e1, e2) -> e2, LinkedHashMap::new));
 		int size = sortedVoteMap.keySet().toArray().length - 1; // Last element in the set is the one with most votes
 		String classification = sortedVoteMap.keySet().toArray()[size].toString();
-		printVoteMap(sortedVoteMap);
-		System.out.println("Classification = " + classification);
+		//printVoteMap(sortedVoteMap);
+		System.out.println("Classification = " + classification + " Real class = " + objectToClassify.get(objectToClassify.size() - 1));
 		return classification;
 	}
 	

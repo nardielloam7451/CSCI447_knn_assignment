@@ -42,7 +42,20 @@ public class TestDriver {
 		long endTime = System.nanoTime();
 		long duration = (endTime - startTime) * 1/1000000;
 		System.out.printf("%n%nTook %d milliseconds to classify %d examples", duration, testSet.size());
-
+		CNN cnn = new CNN(testSet, testSet, 1, null, null);
+		startTime = System.nanoTime();
+		cnn.buildModel(trainingSet);
+		endTime = System.nanoTime();
+		duration = (endTime - startTime) * 1/1000000;
+		System.out.printf("%n%nTook %d milliseconds to build CNN model%n", duration);
+		
+		cnn.buildModel(trainingSet);
+		startTime = System.nanoTime();
+		for (int i = 0; i < testSet.size(); i++) {
+			cnn.classify(testSet.get(i));
+		}
+		endTime = System.nanoTime();
+		duration = (endTime - startTime) * 1/1000000;
 	}
 
 }
