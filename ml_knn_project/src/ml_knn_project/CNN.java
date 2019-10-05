@@ -73,10 +73,7 @@ public class CNN extends KNearestNeighbor{
 				// check if that nearest data point is classified incorrectly
 				if (!nearestPoint.get(nearestPoint.size() - 1).toString().equals(pointTested.get(pointTested.size() - 1).toString())) {
 					newSet.add(pointTested);
-					System.out.printf("Adding to new set%n"); // DELETE
-				} else {
-					System.out.printf("Not adding index %d to list | classification = %s | nearest point class = %s%n", q, pointTested.get(pointTested.size() - 1).toString(), nearestPoint.get(nearestPoint.size() - 1)); // DELETE
-				}
+				} 
 
 				// handle when it reaches the end of the set
 			}
