@@ -96,9 +96,9 @@ public class TenFoldDriver {
 			partitionedDataSet = makeTrainingAndTestSet(data, i);
 			ArrayList<ArrayList<Object>> trainingSet = partitionedDataSet.get(TRAININGSET);
 			ArrayList<ArrayList<Object>> testSet = partitionedDataSet.get(TESTSET);
-			knn(cloneModel(trainingSet), cloneModel(testSet));
-			enn(cloneModel(trainingSet), cloneModel(testSet));
-			cnn(cloneModel(trainingSet), cloneModel(testSet));
+			knn(cloneModel(trainingSet), cloneModel(testSet), String.format("%d %s", i, file));
+			enn(cloneModel(trainingSet), cloneModel(testSet), String.format("%d %s", i, file));
+			cnn(cloneModel(trainingSet), cloneModel(testSet), String.format("%d %s", i, file));
 			System.out.printf("%n%n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%n");
 		}
 	}
@@ -111,8 +111,9 @@ public class TenFoldDriver {
 		return clone;
 	}
 
-	private void knn(ArrayList<ArrayList<Object>> trainingSet, ArrayList<ArrayList<Object>> testSet) {
-		KNearestNeighbor knn = new KNearestNeighbor(trainingSet, testSet, 2, null, null);
+	private void knn(ArrayList<ArrayList<Object>> trainingSet, ArrayList<ArrayList<Object>> testSet, String filename) {
+		KNearestNeighbor knn = new KNearestNeighbor(trainingSet, testSet, 5, null, null);
+		knn.setFileName(filename);
 		int correctCount = 0;
 		int wrongCount = 0;
 		for (int i = 0; i < testSet.size(); i++) {
@@ -128,8 +129,9 @@ public class TenFoldDriver {
 		}
 		System.out.printf("KNN score %d/%d%n", correctCount, correctCount+wrongCount);
 	}
-	private void enn(ArrayList<ArrayList<Object>> trainingSet, ArrayList<ArrayList<Object>> testSet) {
-		ENN enn = new ENN(trainingSet, testSet, 2, null, null, 0.2124);
+	private void enn(ArrayList<ArrayList<Object>> trainingSet, ArrayList<ArrayList<Object>> testSet, String filename) {
+		ENN enn = new ENN(trainingSet, testSet, 5, null, null, 0.2124);
+		enn.setFileName(filename);
 		enn.buildModel();
 		int correctCount = 0;
 		int wrongCount = 0;
@@ -146,8 +148,9 @@ public class TenFoldDriver {
 		}
 		System.out.printf("ENN score %d/%d%n", correctCount, correctCount+wrongCount);
 	}
-	private void cnn(ArrayList<ArrayList<Object>> trainingSet, ArrayList<ArrayList<Object>> testSet) {
-		CNN cnn = new CNN(trainingSet, testSet, 2, null, null);
+	private void cnn(ArrayList<ArrayList<Object>> trainingSet, ArrayList<ArrayList<Object>> testSet, String filename) {
+		CNN cnn = new CNN(trainingSet, testSet, 5, null, null);
+		cnn.setFileName(filename);
 		cnn.buildModel();
 		int correctCount = 0;
 		int wrongCount = 0;

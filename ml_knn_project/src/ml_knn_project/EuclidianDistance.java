@@ -12,6 +12,7 @@ public class EuclidianDistance implements Distance {
 			// Parse values as double or string
 			double firstVal = Double.MAX_VALUE;
 			double secondVal = 0;
+			int mismatchedStrings = 0;
 			try {
 				firstVal = Double.parseDouble(targetVector.get(i).toString());
 				secondVal = Double.parseDouble(featureVector.get(i).toString());
@@ -21,7 +22,7 @@ public class EuclidianDistance implements Distance {
 					
 					firstVal = 0; // Same strings, same distance apart
 				} else {
-					firstVal = 1.0; // Different strings, different distances
+					firstVal = featureVector.size(); // Different strings, different distances
 				}
 			}
 			distance += Math.pow(firstVal - secondVal, 2);

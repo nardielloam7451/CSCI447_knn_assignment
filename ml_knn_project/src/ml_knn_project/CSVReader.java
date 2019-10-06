@@ -1,6 +1,7 @@
 package ml_knn_project;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
@@ -15,7 +16,7 @@ public class CSVReader {
 	CSVReader(String filename)
 	{
 		try{
-			fout= new PrintStream ( new FileOutputStream(filename));
+			fout= new PrintStream ( new FileOutputStream(new File(filename), true));
 		}catch(IOException fo){
 			System.out.println(fo); 
 		}
@@ -30,7 +31,9 @@ public class CSVReader {
 			System.out.println(fo); 
 		}
 	}
-
+	public void writer(String algorithmName, String out) {
+		fout.println(algorithmName + "," + out);
+	}
 	public void writer(String out)
 	{
 

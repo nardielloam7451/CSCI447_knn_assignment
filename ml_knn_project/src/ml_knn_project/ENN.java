@@ -17,6 +17,7 @@ public class ENN extends KNearestNeighbor{
 			ZeroOneLoss zeroOne, MeanSquaredError mse, double validationSetFraction) {
 		super(trainingSet, testSet, k, zeroOne, mse);
 		this.validationSetFraction = validationSetFraction;
+		algorithmName = "ENN";
 		// Make special training set so it doesn't destroy the og object reference
 		
 	}

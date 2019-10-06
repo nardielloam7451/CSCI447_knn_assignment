@@ -16,6 +16,9 @@ public class KNearestNeighbor {
 	 ZeroOneLoss zeroOne;					  // Loss function 1
 	 MeanSquaredError mse;                    // Loss function 2
 	 Distance distanceFunction;
+	 String algorithmName = "KNN";
+	 CSVReader writer = new CSVReader("Results.csv");
+	 String filename;
 	public KNearestNeighbor(ArrayList<ArrayList<Object>> trainingSet, ArrayList<ArrayList<Object>> testSet, int k, ZeroOneLoss zeroOne, MeanSquaredError mse) {
 		this.trainingSet = trainingSet;
 		this.testSet = testSet;
@@ -66,6 +69,7 @@ public class KNearestNeighbor {
 		String classification = sortedVoteMap.keySet().toArray()[size].toString();
 		//printVoteMap(sortedVoteMap);
 		//System.out.println("Classification = " + classification + " Real class = " + objectToClassify.get(objectToClassify.size() - 1));
+		writer.writer(filename + " " + algorithmName, classification + objectToClassify.get(objectToClassify.size() - 1).toString());
 		return classification;
 	}
 	
@@ -85,6 +89,9 @@ public class KNearestNeighbor {
 		for (int i = 0; i < m.size(); i++) {
 			System.out.printf("Key: %s Value: %s%n", keys[i].toString(), m.get(keys[i]));
 		}
+	}
+	public void setFileName(String filename) {
+		this.filename = filename;
 	}
 	
 

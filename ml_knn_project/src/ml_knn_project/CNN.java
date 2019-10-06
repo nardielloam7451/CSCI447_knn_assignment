@@ -8,6 +8,7 @@ public class CNN extends KNearestNeighbor{
 			ZeroOneLoss zeroOne, MeanSquaredError mse) {
 		super(trainingSet, testSet, k, zeroOne, mse);
 		// TODO Auto-generated constructor stub
+		algorithmName = "CNN";
 	}
 
 	public void buildModel() {
