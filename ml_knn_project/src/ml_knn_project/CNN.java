@@ -55,7 +55,6 @@ public class CNN extends KNearestNeighbor{
 						pointTested = ourSet.get(q);
 					}
 				}
-				String pointTestedClass = pointTested.get(pointTested.size() - 1).toString(); // DELETE
 				//System.out.printf("pointTested class = %s%n", pointTestedClass);
 
 				// get the nearest data point

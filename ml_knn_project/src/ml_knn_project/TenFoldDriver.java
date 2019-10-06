@@ -21,7 +21,7 @@ public class TenFoldDriver {
 
 	/** Random number generator */
 	/** Seeded so that experiments may be repeated with the same values. */
-	private static Random randomizer = new Random(-9);
+	private static Random randomizer = new Random();
 	/**
 	 * Gets the program going
 	 *
@@ -91,15 +91,26 @@ public class TenFoldDriver {
 		ArrayList<ArrayList<ArrayList<Object>>> partitionedDataSet = new ArrayList<ArrayList<ArrayList<Object>>>();
 		System.out.printf(    "~~~~~~~~~~~~~~File: %s", file);
 		System.out.printf("%n%n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%n");
-		for (int i = 0; i < 10 /* folds */; i++) {
-			System.out.printf("Fold index: %d%n", i);
-			partitionedDataSet = makeTrainingAndTestSet(data, i);
-			ArrayList<ArrayList<Object>> trainingSet = partitionedDataSet.get(TRAININGSET);
-			ArrayList<ArrayList<Object>> testSet = partitionedDataSet.get(TESTSET);
-			knn(cloneModel(trainingSet), cloneModel(testSet), String.format("%d %s", i, file));
-			enn(cloneModel(trainingSet), cloneModel(testSet), String.format("%d %s", i, file));
-			cnn(cloneModel(trainingSet), cloneModel(testSet), String.format("%d %s", i, file));
-			System.out.printf("%n%n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%n");
+		for (int hyperParmCounter = 0; hyperParmCounter < 5; hyperParmCounter++) {
+			int k = randomizer.nextInt(8) + 1;
+			double validationSetFraction = randomizer.nextFloat() * 0.75 + 0.04;
+			System.out.printf("HyperParams%nK=%d%nvalidationSetFraction=%f%n---------------%n", k, validationSetFraction);
+			ZeroOneLoss knnz1 = new ZeroOneLoss("KNN", file, String.format("validationSetFraction=%f|K=%d", validationSetFraction, k));
+			ZeroOneLoss ennz1 = new ZeroOneLoss("ENN", file, String.format("K=%d", k));
+			ZeroOneLoss cnnz1 = new ZeroOneLoss("CNN", file, String.format("K=%d", k));
+			for (int i = 0; i < 10 /* folds */; i++) {
+				System.out.printf("Fold index: %d%n", i);
+				partitionedDataSet = makeTrainingAndTestSet(data, i);
+				ArrayList<ArrayList<Object>> trainingSet = partitionedDataSet.get(TRAININGSET);
+				ArrayList<ArrayList<Object>> testSet = partitionedDataSet.get(TESTSET);
+				knn(knnz1, cloneModel(trainingSet), cloneModel(testSet), String.format("%d %s", i, file), k, i);
+				enn(ennz1, cloneModel(trainingSet), cloneModel(testSet), String.format("%d %s", i, file), validationSetFraction, k, i);
+				cnn(cnnz1, cloneModel(trainingSet), cloneModel(testSet), String.format("%d %s", i, file), k, i);
+				System.out.printf("%n%n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%n");
+			}
+			knnz1.writeResults();
+			ennz1.writeResults();
+			cnnz1.writeResults();
 		}
 	}
 
@@ -111,7 +122,7 @@ public class TenFoldDriver {
 		return clone;
 	}
 
-	private void knn(ArrayList<ArrayList<Object>> trainingSet, ArrayList<ArrayList<Object>> testSet, String filename) {
+	private void knn(ZeroOneLoss z1, ArrayList<ArrayList<Object>> trainingSet, ArrayList<ArrayList<Object>> testSet, String filename, int k, int foldNumber) {
 		KNearestNeighbor knn = new KNearestNeighbor(trainingSet, testSet, 5, null, null);
 		knn.setFileName(filename);
 		int correctCount = 0;
@@ -119,6 +130,7 @@ public class TenFoldDriver {
 		for (int i = 0; i < testSet.size(); i++) {
 			String classificationResult = knn.classify(testSet.get(i));
 			String actualClass = testSet.get(i).get(testSet.get(i).size() - 1).toString();
+			z1.addResult(foldNumber, classificationResult, actualClass);
 			if (classificationResult.equals(actualClass)) {
 				correctCount++;
 				//System.out.printf("KNN Correct! %s=%s | %d/%d%n",classificationResult, actualClass, correctCount, correctCount+wrongCount);
@@ -129,8 +141,8 @@ public class TenFoldDriver {
 		}
 		System.out.printf("KNN score %d/%d%n", correctCount, correctCount+wrongCount);
 	}
-	private void enn(ArrayList<ArrayList<Object>> trainingSet, ArrayList<ArrayList<Object>> testSet, String filename) {
-		ENN enn = new ENN(trainingSet, testSet, 5, null, null, 0.2124);
+	private void enn(ZeroOneLoss z1, ArrayList<ArrayList<Object>> trainingSet, ArrayList<ArrayList<Object>> testSet, String filename, double validationSetFraction, int k, int foldNumber) {
+		ENN enn = new ENN(trainingSet, testSet, k, null, null, validationSetFraction);
 		enn.setFileName(filename);
 		enn.buildModel();
 		int correctCount = 0;
@@ -138,6 +150,7 @@ public class TenFoldDriver {
 		for (int i = 0; i < testSet.size(); i++) {
 			String classificationResult = enn.classify(testSet.get(i));
 			String actualClass = testSet.get(i).get(testSet.get(i).size() - 1).toString();
+			z1.addResult(foldNumber, classificationResult, actualClass);
 			if (classificationResult.equals(actualClass)) {
 				correctCount++;
 				//System.out.printf("ENN Correct! %s=%s | %d/%d%n",classificationResult, actualClass, correctCount, correctCount+wrongCount);
@@ -148,8 +161,8 @@ public class TenFoldDriver {
 		}
 		System.out.printf("ENN score %d/%d%n", correctCount, correctCount+wrongCount);
 	}
-	private void cnn(ArrayList<ArrayList<Object>> trainingSet, ArrayList<ArrayList<Object>> testSet, String filename) {
-		CNN cnn = new CNN(trainingSet, testSet, 5, null, null);
+	private void cnn(ZeroOneLoss z1, ArrayList<ArrayList<Object>> trainingSet, ArrayList<ArrayList<Object>> testSet, String filename, int k, int foldNumber) {
+		CNN cnn = new CNN(trainingSet, testSet, k, null, null);
 		cnn.setFileName(filename);
 		cnn.buildModel();
 		int correctCount = 0;
@@ -157,6 +170,7 @@ public class TenFoldDriver {
 		for (int i = 0; i < testSet.size(); i++) {
 			String classificationResult = cnn.classify(testSet.get(i));
 			String actualClass = testSet.get(i).get(testSet.get(i).size() - 1).toString();
+			z1.addResult(foldNumber, classificationResult, actualClass);
 			if (classificationResult.equals(actualClass)) {
 				correctCount++;
 				//System.out.printf("CNN Correct! %s=%s | %d/%d%n",classificationResult, actualClass, correctCount, correctCount+wrongCount);
