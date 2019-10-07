@@ -24,6 +24,9 @@ public class ENN extends KNearestNeighbor{
 
 
 	public void buildModel() {
+		int originalSize = trainingSet.size();
+		// Do not write any results out while building the model
+		writeResultsOut = false;
 		// Build the validation set from the training set
 		buildValidationSet();
 		
@@ -79,10 +82,13 @@ public class ENN extends KNearestNeighbor{
 				run = false;
 				trainingSet = lastModel;
 				System.out.printf("Model complete %d correct this time, %d last time%n", numberOfCorrectValidations, lastValidationScore); // DELETE
+				System.out.printf("Model size: %d/%d(original)%n", trainingSet.size(), originalSize);
 			} else {
 				System.out.printf("Model improving, %d correct this time, %d last time%n", numberOfCorrectValidations, lastValidationScore); // DELETE
 			}
 		}
+		// Okay to write results again after model built
+		writeResultsOut = true;
 	}
 
 	private void shuffleTrainingSetRows() {

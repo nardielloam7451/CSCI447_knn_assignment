@@ -11,14 +11,15 @@ import static java.util.Map.Entry.*;
 public class KNearestNeighbor {
 	/* Global Variables */
 	ArrayList<ArrayList<Object>> trainingSet; // The data set to build the model on, assume class/regression value in last row
-	 ArrayList<ArrayList<Object>> testSet;    // The data set to test the model on, assume class/regression value in last row
-	 int k;									  // The number of k-neighbors to use for classification/regression
-	 ZeroOneLoss zeroOne;					  // Loss function 1
-	 MeanSquaredError mse;                    // Loss function 2
-	 Distance distanceFunction;
-	 String algorithmName = "KNN";
-	 CSVReader writer = new CSVReader("Results.csv");
-	 String filename;
+	ArrayList<ArrayList<Object>> testSet;    // The data set to test the model on, assume class/regression value in last row
+	int k;									  // The number of k-neighbors to use for classification/regression
+	ZeroOneLoss zeroOne;					  // Loss function 1
+	MeanSquaredError mse;                    // Loss function 2
+	Distance distanceFunction;
+	String algorithmName = "KNN";
+	// CSVReader writer = new CSVReader("Results.csv");
+	String filename;
+	boolean writeResultsOut = true;
 	public KNearestNeighbor(ArrayList<ArrayList<Object>> trainingSet, ArrayList<ArrayList<Object>> testSet, int k, ZeroOneLoss zeroOne, MeanSquaredError mse) {
 		this.trainingSet = trainingSet;
 		this.testSet = testSet;
@@ -27,7 +28,7 @@ public class KNearestNeighbor {
 		this.mse = mse;
 		distanceFunction = new EuclidianDistance();
 	}
-	
+
 	public String classify(ArrayList<Object> objectToClassify) {
 		return classify(objectToClassify, trainingSet);
 	}
@@ -44,7 +45,7 @@ public class KNearestNeighbor {
 		// sort the hash map
 		// magic lambda wizardry, thanks https://www.baeldung.com/java-hashmap-sort
 		AbstractMap<Integer,Double> sorted = distanceMap.entrySet().stream().sorted(comparingByValue()).collect(toMap(e -> e.getKey(), e -> e.getValue(), (e1, e2) -> e2, LinkedHashMap::new));
-		
+
 		/*System.out.println("Unsorted ------------");
 		printMap(distanceMap);
 		System.out.printf("%n%nSorted ---------%n");
@@ -69,21 +70,42 @@ public class KNearestNeighbor {
 		String classification = sortedVoteMap.keySet().toArray()[size].toString();
 		//printVoteMap(sortedVoteMap);
 		//System.out.println("Classification = " + classification + " Real class = " + objectToClassify.get(objectToClassify.size() - 1));
-		writer.writer(filename + " " + algorithmName, classification + objectToClassify.get(objectToClassify.size() - 1).toString());
+		//		if (writeResultsOut) {
+		//			writer.writer(filename + "," + algorithmName, classification + "," + objectToClassify.get(objectToClassify.size() - 1).toString());
+		//		}
 		return classification;
 	}
-	
-	public void regress() {
-		
+
+	public ArrayList<ArrayList<Object>> getNearestNeighbors(int numberOfNearestNeighborsToGet, ArrayList<ArrayList<Object>> knnModelSpace, ArrayList<Object> featureToTest) {
+		ArrayList<ArrayList<Object>> nearestNeighbors = new ArrayList<ArrayList<Object>>();
+		AbstractMap<Integer,Double> distanceMap = new HashMap<Integer,Double>();
+		EuclidianDistance distanceFunction = new EuclidianDistance();
+		for (int i = 0; i < knnModelSpace.size(); i++) {
+			double distance = distanceFunction.getDistance(featureToTest, knnModelSpace.get(i));
+			distanceMap.put(i, distance);
+		}
+		// sort the hash map
+		// magic lambda wizardry, thanks https://www.baeldung.com/java-hashmap-sort
+		AbstractMap<Integer,Double> sorted = distanceMap.entrySet().stream().sorted(comparingByValue()).collect(toMap(e -> e.getKey(), e -> e.getValue(), (e1, e2) -> e2, LinkedHashMap::new));
+		Object[] sortedKeys = sorted.keySet().toArray();
+		for (int i = 0; i < numberOfNearestNeighborsToGet; i++) {
+			ArrayList<Object> closeNeighbor = knnModelSpace.get((int)sortedKeys[i]);
+			nearestNeighbors.add(closeNeighbor);
+		}
+		return nearestNeighbors;
 	}
-	
+
+	public void regress() {
+
+	}
+
 	private void printVoteMap(AbstractMap<String, Integer> m) {
 		Object[] keys = m.keySet().toArray();
 		for (Object key : keys) {
 			System.out.printf("Class: %s, value: %d%n", key.toString(), m.get(key));
 		}
 	}
-	
+
 	private void printMap(AbstractMap<Integer,Double> m) {
 		Object[] keys = m.keySet().toArray();
 		for (int i = 0; i < m.size(); i++) {
@@ -93,6 +115,6 @@ public class KNearestNeighbor {
 	public void setFileName(String filename) {
 		this.filename = filename;
 	}
-	
+
 
 }
