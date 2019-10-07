@@ -13,7 +13,7 @@ import java.util.Random;
  */
 public class TenFoldDriver {
 	/** The files. */
-	static String[] classificationFiles = {"car_data.csv", "segmentation_data.csv", "abalone_data.csv"};
+	static String[] classificationFiles = {"segmentation_data.csv", "car_data.csv", "abalone_data.csv"};
 	/** Indexes for what will be training / test sets */
 	final int TRAININGSET = 0;
 	final int TESTSET = 1;
@@ -91,9 +91,10 @@ public class TenFoldDriver {
 		ArrayList<ArrayList<ArrayList<Object>>> partitionedDataSet = new ArrayList<ArrayList<ArrayList<Object>>>();
 		System.out.printf(    "~~~~~~~~~~~~~~File: %s", file);
 		System.out.printf("%n%n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%n");
-		for (int hyperParmCounter = 0; hyperParmCounter < 5; hyperParmCounter++) {
-			int k = randomizer.nextInt(8) + 1;
-			double validationSetFraction = randomizer.nextFloat() * 0.75 + 0.04;
+		for (int hyperParmCounter = 0; hyperParmCounter < 35; hyperParmCounter++) {
+			double kRatio = randomizer.nextDouble()*0.105;
+			int k = (int) (kRatio*makeTrainingAndTestSet(data, 0).get(TRAININGSET).size()) + 1;
+			double validationSetFraction = randomizer.nextFloat() * 0.55 + 0.04;
 			System.out.printf("HyperParams%nK=%d%nvalidationSetFraction=%f%n---------------%n", k, validationSetFraction);
 			ZeroOneLoss knnz1 = new ZeroOneLoss("KNN", file, String.format("validationSetFraction=%f|K=%d", validationSetFraction, k));
 			ZeroOneLoss ennz1 = new ZeroOneLoss("ENN", file, String.format("K=%d", k));
@@ -103,6 +104,8 @@ public class TenFoldDriver {
 				partitionedDataSet = makeTrainingAndTestSet(data, i);
 				ArrayList<ArrayList<Object>> trainingSet = partitionedDataSet.get(TRAININGSET);
 				ArrayList<ArrayList<Object>> testSet = partitionedDataSet.get(TESTSET);
+				k = (int)(kRatio*trainingSet.size()) + 1;
+				System.out.printf("k = %d%n", k);
 				knn(knnz1, cloneModel(trainingSet), cloneModel(testSet), String.format("%d %s", i, file), k, i);
 				enn(ennz1, cloneModel(trainingSet), cloneModel(testSet), String.format("%d %s", i, file), validationSetFraction, k, i);
 				cnn(cnnz1, cloneModel(trainingSet), cloneModel(testSet), String.format("%d %s", i, file), k, i);
