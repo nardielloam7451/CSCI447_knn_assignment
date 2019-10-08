@@ -43,11 +43,17 @@ public class MeanSquaredError implements LossFunction {//implements the mean squ
 		int foldCounter = 0;
 		for (int i = 0; i < results.size(); i++) {
 			String currentFoldNumber = results.get(i)[FOLDNUMBER];
-			if (!lastFoldNumber.equals(currentFoldNumber)) {
+			if (!lastFoldNumber.equals(currentFoldNumber) || i == results.size() - 1) {
 				//System.err.println("HIT");
+				if (i == results.size() - 1) {
+					double guessResult =  Double.parseDouble(results.get(i)[GUESS]);
+					double actualResult = Double.parseDouble(results.get(i)[ACTUAL]);
+					double squaredDifference = Math.pow(guessResult-actualResult, 2);
+					mse += squaredDifference;
+				}
 				
 				if(verbosePrinting) {
-					System.out.printf("MSE for fold %d is %f%n", i, Math.pow(mse, 0.5) * 1/foldCounter);
+					System.out.printf("MSE for fold %s is %f%n", lastFoldNumber, Math.pow(mse, 0.5) * 1/foldCounter);
 				}
 				meanSquaredErrorPerFold.add(Math.pow(mse, 0.5) * 1/foldCounter);
 				mse = 0;
@@ -57,18 +63,24 @@ public class MeanSquaredError implements LossFunction {//implements the mean squ
 			double guessResult =  Double.parseDouble(results.get(i)[GUESS]);
 			double actualResult = Double.parseDouble(results.get(i)[ACTUAL]);
 			double squaredDifference = Math.pow(guessResult-actualResult, 2);
+			if(verbosePrinting) {
+				System.out.printf("Actual Result = %f, guessResult = %f, squareddiff = %f%n", actualResult, guessResult, squaredDifference);
+			}
 			mse += squaredDifference;
 			foldCounter++;
 		}
 		
 		// Average the results for 0/1 accuracy across all of the folds
-		double accuracyAverage = 0;
-		for (int i = 0; i < meanSquaredErrorPerFold.size(); i++) {
-			accuracyAverage += meanSquaredErrorPerFold.get(i).doubleValue();
+		double meanSquaredErrorAverage = 0;
+		if(verbosePrinting) {
+			System.out.printf("Size of meansquarederrorPerFold = %d%n", meanSquaredErrorPerFold.size());
 		}
-		accuracyAverage = accuracyAverage / meanSquaredErrorPerFold.size();
-		System.out.printf("%s accuracy average = %f | correctGuessRatioPerFold.size() = %d%n", algorithmName, accuracyAverage, meanSquaredErrorPerFold.size()); // DELETE
-		String stringToWrite = String.format("%s,%s,%s,%f", algorithmName, dataSetName, hyperParams, accuracyAverage);
+		for (int i = 0; i < meanSquaredErrorPerFold.size(); i++) {
+			meanSquaredErrorAverage += meanSquaredErrorPerFold.get(i).doubleValue();
+		}
+		meanSquaredErrorAverage = meanSquaredErrorAverage / meanSquaredErrorPerFold.size();
+		System.out.printf("%s mean squared error average = %f | meanSquaredErrorPerFold.size() = %d%n", algorithmName, meanSquaredErrorAverage, meanSquaredErrorPerFold.size()); // DELETE
+		String stringToWrite = String.format("%s,%s,%s,%f", algorithmName, dataSetName, hyperParams, meanSquaredErrorAverage);
 		writer.writer(stringToWrite);
 	}
 }

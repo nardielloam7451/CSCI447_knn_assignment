@@ -78,6 +78,7 @@ public class KNearestNeighbor {
 
 	public ArrayList<ArrayList<Object>> getNearestNeighbors(int numberOfNearestNeighborsToGet, ArrayList<ArrayList<Object>> knnModelSpace, ArrayList<Object> featureToTest) {
 		ArrayList<ArrayList<Object>> nearestNeighbors = new ArrayList<ArrayList<Object>>();
+		
 		AbstractMap<Integer,Double> distanceMap = new HashMap<Integer,Double>();
 		EuclidianDistance distanceFunction = new EuclidianDistance();
 		for (int i = 0; i < knnModelSpace.size(); i++) {
@@ -88,15 +89,37 @@ public class KNearestNeighbor {
 		// magic lambda wizardry, thanks https://www.baeldung.com/java-hashmap-sort
 		AbstractMap<Integer,Double> sorted = distanceMap.entrySet().stream().sorted(comparingByValue()).collect(toMap(e -> e.getKey(), e -> e.getValue(), (e1, e2) -> e2, LinkedHashMap::new));
 		Object[] sortedKeys = sorted.keySet().toArray();
+		//System.out.printf("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!nearest neighbors size = %d%n", numberOfNearestNeighborsToGet); // DELETE
 		for (int i = 0; i < numberOfNearestNeighborsToGet; i++) {
 			ArrayList<Object> closeNeighbor = knnModelSpace.get((int)sortedKeys[i]);
 			nearestNeighbors.add(closeNeighbor);
 		}
+		
 		return nearestNeighbors;
 	}
+	
+	public double regress(ArrayList<Object> featureToTest) {
+		return regress(trainingSet, featureToTest);
+	}
 
-	public void regress() {
+	public double regress (ArrayList<ArrayList<Object>> model, ArrayList<Object> featureToTest) {
 
+		ArrayList<ArrayList<Object>> nearestNeighbors = getNearestNeighbors(k, model, featureToTest);
+		//getNearestNeighbors(k, model, featureToTest);
+		
+		//System.out.printf("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!k size = %d%n", k); // DELETE
+		double total = 0;
+		double avg = 0;
+		int lastCol = nearestNeighbors.get(0).size()-1;
+
+
+		for (int r = 0; r < k; r++) {
+			Object feature = nearestNeighbors.get(r).get(lastCol);
+			Double d = (Double) feature;
+			total += d;
+		}
+		avg = total / k;
+		return avg;
 	}
 
 	private void printVoteMap(AbstractMap<String, Integer> m) {

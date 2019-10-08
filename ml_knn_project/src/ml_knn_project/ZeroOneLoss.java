@@ -9,6 +9,7 @@ public class ZeroOneLoss implements LossFunction {
 	String dataSetName;
 	String hyperParams;
 	ArrayList<String[]> results = new ArrayList<String[]>();
+	private boolean verbosePrinting;
 	final int FOLDNUMBER = 0;
 	final int GUESS = 1;
 	final int ACTUAL = 2;
@@ -18,6 +19,13 @@ public class ZeroOneLoss implements LossFunction {
 		this.hyperParams = hyperParams;
 	}
 	
+	public ZeroOneLoss(boolean verbosePrinting, String algorithmName, String dataSetName, String hyperParams) {
+		this.algorithmName = algorithmName;
+		this.dataSetName = dataSetName;
+		this.hyperParams = hyperParams;
+		this.verbosePrinting = verbosePrinting;
+	}
+
 	public void addResult(int foldNumber, String guess, String actual) {
 		String[] resultEntry = new String[3];
 		resultEntry[FOLDNUMBER] = String.format("%d", foldNumber);
@@ -25,7 +33,7 @@ public class ZeroOneLoss implements LossFunction {
 		resultEntry[ACTUAL] = actual;
 		results.add(resultEntry);
 	}
-	
+
 	public void writeResults() {
 		String lastFoldNumber = results.get(0)[FOLDNUMBER];
 		int matchCount = 0;
@@ -34,13 +42,24 @@ public class ZeroOneLoss implements LossFunction {
 		// Get the results for 0/1 accuracy over every fold
 		for (int i = 0; i < results.size(); i++) {
 			String currentFoldNumber = results.get(i)[FOLDNUMBER];
-			if (!lastFoldNumber.equals(currentFoldNumber)) {
+			if (!lastFoldNumber.equals(currentFoldNumber) || i == results.size() - 1) {
 				//System.err.println("HIT");
+				if (i == results.size() - 1) {
+					if (results.get(i)[GUESS].equals(results.get(i)[ACTUAL])) {
+						matchCount++;
+					} else {
+						mismatchCount++;
+					}
+				}
 				double correctGuessRatio = (double)(matchCount) / (matchCount + mismatchCount);
 				correctGuessRatioPerFold.add(new Double(correctGuessRatio));
 				matchCount = 0;
 				mismatchCount = 0;
+				if (verbosePrinting) {
+					System.out.printf("0/1 accuracy for fold %d is %f%n", lastFoldNumber, correctGuessRatio);
+				}
 				lastFoldNumber = currentFoldNumber;
+				
 			} 
 			if (results.get(i)[GUESS].equals(results.get(i)[ACTUAL])) {
 				matchCount++;
@@ -48,7 +67,7 @@ public class ZeroOneLoss implements LossFunction {
 				mismatchCount++;
 			}
 		}
-		
+
 		// Average the results for 0/1 accuracy across all of the folds
 		double accuracyAverage = 0;
 		for (int i = 0; i < correctGuessRatioPerFold.size(); i++) {
@@ -59,5 +78,5 @@ public class ZeroOneLoss implements LossFunction {
 		String stringToWrite = String.format("%s,%s,%s,%f", algorithmName, dataSetName, hyperParams, accuracyAverage);
 		writer.writer(stringToWrite);
 	}
-	
+
 }
