@@ -22,26 +22,48 @@ public class KNearestNeighbor {
 	boolean writeResultsOut = true;
 	public KNearestNeighbor(ArrayList<ArrayList<Object>> trainingSet, ArrayList<ArrayList<Object>> testSet, int k, ZeroOneLoss zeroOne, MeanSquaredError mse) {
 		this.trainingSet = trainingSet;
+//		System.out.printf("TrainingSet Size: %d%n", this.trainingSet.size());
 		this.testSet = testSet;
 		this.k = k;
 		this.zeroOne = zeroOne;
 		this.mse = mse;
 		distanceFunction = new EuclidianDistance();
 	}
-
+	public int getTrainingSetSize() {
+		return trainingSet.size();
+	}
 	public String classify(ArrayList<Object> objectToClassify) {
+		//System.out.printf("Training Set Size: %d%n", trainingSet.size());
 		return classify(objectToClassify, trainingSet);
 	}
 	public String classify(ArrayList<Object> objectToClassify, ArrayList<ArrayList<Object>> knnModelSpace) {
 		return classify(objectToClassify,knnModelSpace, k);
 	}
+	
+	private ArrayList<ArrayList<Object>> cloneModel(ArrayList<ArrayList<Object>> modelToClone) {
+		ArrayList<ArrayList<Object>> clone = new ArrayList<ArrayList<Object>>();
+		for (int i = 0; i < modelToClone.size(); i++) {
+			clone.add(modelToClone.get(i));
+		}
+		return clone;
+	}
+	
 	public String classify(ArrayList<Object> objectToClassify, ArrayList<ArrayList<Object>> knnModelSpace, int k) {
+		
+		/**
+		 * It was necessary to shuffle the rows because of how the voting system works...
+		 * Originally the model was being destroyed by the shuffle though, so a clone is copied and
+		 * allowed to be destroyed. Definitely not the most efficient way...But it works.
+		 */
+		ArrayList<ArrayList<Object>> knnModelSpaceClone = cloneModel(knnModelSpace);
+		knnModelSpaceClone = TenFoldDriver.shuffleRows(knnModelSpaceClone);
 		// Find the k nearest neighbors to this object
 		AbstractMap<Integer,Double> distanceMap = new HashMap<Integer,Double>();
-		for (int i = 0; i < knnModelSpace.size(); i++) {
-			double distance = distanceFunction.getDistance(objectToClassify, knnModelSpace.get(i));
+		for (int i = 0; i < knnModelSpaceClone.size(); i++) {
+			double distance = distanceFunction.getDistance(objectToClassify, knnModelSpaceClone.get(i));
 			distanceMap.put(i, distance);
 		}
+		//System.out.printf("Training Set Size: %d%ndistance map size: %d%n", knnModelSpace.size(), distanceMap.size());
 		// sort the hash map
 		// magic lambda wizardry, thanks https://www.baeldung.com/java-hashmap-sort
 		AbstractMap<Integer,Double> sorted = distanceMap.entrySet().stream().sorted(comparingByValue()).collect(toMap(e -> e.getKey(), e -> e.getValue(), (e1, e2) -> e2, LinkedHashMap::new));
@@ -56,7 +78,7 @@ public class KNearestNeighbor {
 		for (int i = 0; i < k; i++) {
 			int key = (int) sortedKeys[i];
 			// Get class 
-			String attributeClass = knnModelSpace.get(key).get(knnModelSpace.get(key).size() - 1).toString();
+			String attributeClass = knnModelSpaceClone.get(key).get(knnModelSpaceClone.get(key).size() - 1).toString();
 			if (voteMap.get(attributeClass) != null) {
 				int tally = voteMap.get(attributeClass);
 				voteMap.put(attributeClass, tally+1);
