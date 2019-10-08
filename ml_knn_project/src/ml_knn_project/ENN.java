@@ -90,6 +90,10 @@ public class ENN extends KNearestNeighbor{
 		// Okay to write results again after model built
 		writeResultsOut = true;
 	}
+	
+	public int getModelSize() {
+		return trainingSet.size();
+	}
 
 	private void shuffleTrainingSetRows() {
 		ArrayList<ArrayList<Object>> shuffledTrainingSet = new ArrayList<ArrayList<Object>>();

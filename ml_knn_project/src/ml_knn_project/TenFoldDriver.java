@@ -98,7 +98,9 @@ public class TenFoldDriver {
 			double validationSetFraction = randomizer.nextFloat() * 0.75 + 0.04;
 			System.out.printf("HyperParams%nK=%d%nvalidationSetFraction=%f%nvalidationSetSize = %d%n---------------%n", k, validationSetFraction, (int)(makeTrainingAndTestSet(data, 0).get(TRAININGSET).size()*validationSetFraction) + 1);
 			//ZeroOneLoss knnz1 = new ZeroOneLoss("KNN", file, String.format("K=%d", k));
+			MeanSquaredError knnz1 = new MeanSquaredError("KNN", file, String.format("K=%d", k));
 			MeanSquaredError ennz1 = new MeanSquaredError("ENN", file, String.format("validationSetFraction=%f|K=%d",validationSetFraction, k));
+			MeanSquaredError cnnz1 = new MeanSquaredError("CNN", file, String.format("K=%d", k));
 			//ZeroOneLoss cnnz1 = new ZeroOneLoss("CNN", file, String.format("K=%d", k));
 			long startTime = System.nanoTime();
 			for (int i = 0; i < 10 /* folds */; i++) {
@@ -109,9 +111,9 @@ public class TenFoldDriver {
 				int validationSetSize = (int)(trainingSet.size()*validationSetFraction) + 1;
 				//k = (int)(kRatio*trainingSet.size()) + 1;
 				System.out.printf("k = %d%nvalidationSetFrac = %f | Validation Set size = %d%n", k, validationSetFraction, validationSetSize);
-				//knn(knnz1, cloneModel(trainingSet), cloneModel(testSet), String.format("%d %s", i, file), k, i);
+				knn(knnz1, cloneModel(trainingSet), cloneModel(testSet), String.format("%d %s", i, file), k, i);
 				enn(ennz1, cloneModel(trainingSet), cloneModel(testSet), String.format("%d %s", i, file), validationSetFraction, k, i);
-				//cnn(cnnz1, cloneModel(trainingSet), cloneModel(testSet), String.format("%d %s", i, file), k, i);
+				cnn(cnnz1, cloneModel(trainingSet), cloneModel(testSet), String.format("%d %s", i, file), k, i);
 				System.out.printf("%n%n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%n");
 			}
 			//knnz1.writeResults();

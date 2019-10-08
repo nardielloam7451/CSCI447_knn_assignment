@@ -11,10 +11,18 @@ public class MeanSquaredError implements LossFunction {//implements the mean squ
 	final int FOLDNUMBER = 0;
 	final int GUESS = 1;
 	final int ACTUAL = 2;
+	boolean verbosePrinting = false;
 	public MeanSquaredError(String algorithmName, String dataSetName, String hyperParams) {
 		this.algorithmName = algorithmName;
 		this.dataSetName = dataSetName;
 		this.hyperParams = hyperParams;
+	}
+	
+	public MeanSquaredError(boolean verbosePrinting, String algorithmName, String dataSetName, String hyperParams) {
+		this.algorithmName = algorithmName;
+		this.dataSetName = dataSetName;
+		this.hyperParams = hyperParams;
+		this.verbosePrinting = verbosePrinting;
 	}
 	
 	public void addResult(int foldNumber, String guess, String actual) {
@@ -37,7 +45,11 @@ public class MeanSquaredError implements LossFunction {//implements the mean squ
 			String currentFoldNumber = results.get(i)[FOLDNUMBER];
 			if (!lastFoldNumber.equals(currentFoldNumber)) {
 				//System.err.println("HIT");
-				meanSquaredErrorPerFold.add(Math.pow(mse, 0.5));
+				
+				if(verbosePrinting) {
+					System.out.printf("MSE for fold %d is %f%n", i, Math.pow(mse, 0.5) * 1/foldCounter);
+				}
+				meanSquaredErrorPerFold.add(Math.pow(mse, 0.5) * 1/foldCounter);
 				mse = 0;
 				foldCounter = 0;
 				lastFoldNumber = currentFoldNumber;
