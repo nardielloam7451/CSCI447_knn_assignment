@@ -3,8 +3,8 @@ package ml_knn_project;
 
 import java.util.ArrayList; //imports the ArrayList Data structure, which is used to store values from our test set. 
 
-public class ZeroOneLoss {
-	CSVReader writer = new CSVReader("Results.csv");
+public class ZeroOneLoss implements LossFunction {
+	CSVReader writer = new CSVReader("Results_01loss.csv");
 	String algorithmName;
 	String dataSetName;
 	String hyperParams;
@@ -55,7 +55,7 @@ public class ZeroOneLoss {
 			accuracyAverage += correctGuessRatioPerFold.get(i).doubleValue();
 		}
 		accuracyAverage = accuracyAverage / correctGuessRatioPerFold.size();
-		System.out.printf("accuracy average = %f | correctGuessRatioPerFold.size() = %d%n", accuracyAverage, correctGuessRatioPerFold.size()); // DELETE
+		System.out.printf("%s accuracy average = %f | correctGuessRatioPerFold.size() = %d%n", algorithmName, accuracyAverage, correctGuessRatioPerFold.size()); // DELETE
 		String stringToWrite = String.format("%s,%s,%s,%f", algorithmName, dataSetName, hyperParams, accuracyAverage);
 		writer.writer(stringToWrite);
 	}

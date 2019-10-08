@@ -2,21 +2,61 @@ package ml_knn_project;
 
 import java.util.ArrayList;//imports the array list data structure, used to store the test set
 
-public class MeanSquaredError {//implements the mean squared error loss funciton for regression analysis. 
-	private double sumCalculation = 0;//stores the sum of the subtracted values to make the calculations easier.
-	
-	public void MeanSquaredError() {
-		//the constructor of the Mean Squared Error class, which sets the sumCalculation to zero. 
+public class MeanSquaredError implements LossFunction {//implements the mean squared error loss funciton for regression analysis. 
+	CSVReader writer = new CSVReader("Results_mseLoss.csv");
+	String algorithmName;
+	String dataSetName;
+	String hyperParams;
+	ArrayList<String[]> results = new ArrayList<String[]>();
+	final int FOLDNUMBER = 0;
+	final int GUESS = 1;
+	final int ACTUAL = 2;
+	public MeanSquaredError(String algorithmName, String dataSetName, String hyperParams) {
+		this.algorithmName = algorithmName;
+		this.dataSetName = dataSetName;
+		this.hyperParams = hyperParams;
 	}
-	public double mseCalculation(ArrayList<ArrayList<Object>> teSet, int featureChoice, ArrayList<Double>algGuesses) {
-		//takes in the testSet, looks for a specific feature, and preforms the calculation for that feature.
-		for(int i =0; i<teSet.size();i++) {
-			//goes through the test array, looks at a value at a specific row in a column, and subtracts from that value the algorithm's guess. This is then added to a running sum of the data, which will be used in later calculations. 
-			sumCalculation+=Math.pow(((double)teSet.get(i).get(featureChoice))-algGuesses.get(i),2);
+	
+	public void addResult(int foldNumber, String guess, String actual) {
+		String[] resultEntry = new String[3];
+		resultEntry[FOLDNUMBER] = String.format("%d", foldNumber);
+		resultEntry[GUESS] = guess;
+		resultEntry[ACTUAL] = actual;
+		results.add(resultEntry);
+	}
+	
+	public void writeResults() {
+		String lastFoldNumber = results.get(0)[FOLDNUMBER];
+		int matchCount = 0;
+		int mismatchCount = 0;
+		double mse = 0;
+		ArrayList<Double> meanSquaredErrorPerFold = new ArrayList<Double>();
+		// Get the results for 0/1 accuracy over every fold
+		int foldCounter = 0;
+		for (int i = 0; i < results.size(); i++) {
+			String currentFoldNumber = results.get(i)[FOLDNUMBER];
+			if (!lastFoldNumber.equals(currentFoldNumber)) {
+				//System.err.println("HIT");
+				meanSquaredErrorPerFold.add(Math.pow(mse, 0.5));
+				mse = 0;
+				foldCounter = 0;
+				lastFoldNumber = currentFoldNumber;
+			} 
+			double guessResult =  Double.parseDouble(results.get(i)[GUESS]);
+			double actualResult = Double.parseDouble(results.get(i)[ACTUAL]);
+			double squaredDifference = Math.pow(guessResult-actualResult, 2);
+			mse += squaredDifference;
+			foldCounter++;
 		}
-		return(this.sumCalculation/teSet.size());//returns the MSE of the regression function
 		
+		// Average the results for 0/1 accuracy across all of the folds
+		double accuracyAverage = 0;
+		for (int i = 0; i < meanSquaredErrorPerFold.size(); i++) {
+			accuracyAverage += meanSquaredErrorPerFold.get(i).doubleValue();
+		}
+		accuracyAverage = accuracyAverage / meanSquaredErrorPerFold.size();
+		System.out.printf("%s accuracy average = %f | correctGuessRatioPerFold.size() = %d%n", algorithmName, accuracyAverage, meanSquaredErrorPerFold.size()); // DELETE
+		String stringToWrite = String.format("%s,%s,%s,%f", algorithmName, dataSetName, hyperParams, accuracyAverage);
+		writer.writer(stringToWrite);
 	}
-	
-
 }
