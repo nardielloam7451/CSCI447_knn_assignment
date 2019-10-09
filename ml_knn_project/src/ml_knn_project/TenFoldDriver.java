@@ -100,8 +100,8 @@ public class TenFoldDriver {
 		ArrayList<ArrayList<ArrayList<Object>>> partitionedDataSet = new ArrayList<ArrayList<ArrayList<Object>>>();
 		System.out.printf(    "~~~~~~~~~~~~~~File: %s", file);
 		System.out.printf("%n%n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%n");
-		int hyperParamMin = 1;
-		int hyperParamMax = 5;
+		int hyperParamMin = 16;
+		int hyperParamMax = 24;
 		for (int hyperParamCounter = hyperParamMin; hyperParamCounter < hyperParamMax; hyperParamCounter++) {
 			data = shuffleRows(data);
 			//double kRatio = randomizer.nextDouble()*0.105;
