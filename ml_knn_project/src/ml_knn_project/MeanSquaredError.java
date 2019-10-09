@@ -1,12 +1,16 @@
 package ml_knn_project;
 
 import java.util.ArrayList;//imports the array list data structure, used to store the test set
+import java.util.Date;
 
 public class MeanSquaredError implements LossFunction {//implements the mean squared error loss funciton for regression analysis. 
 	CSVReader writer = new CSVReader("Results_mseLoss.csv");
 	String algorithmName;
 	String dataSetName;
 	String hyperParams;
+	CSVReader explicitResultWriter;
+	Date d = new Date();
+	String dateString;
 	ArrayList<String[]> results = new ArrayList<String[]>();
 	final int FOLDNUMBER = 0;
 	final int GUESS = 1;
@@ -16,13 +20,16 @@ public class MeanSquaredError implements LossFunction {//implements the mean squ
 		this.algorithmName = algorithmName;
 		this.dataSetName = dataSetName;
 		this.hyperParams = hyperParams;
+		dateString = String.format("%d", d.getTime());
 	}
 	
 	public MeanSquaredError(boolean verbosePrinting, String algorithmName, String dataSetName, String hyperParams) {
+		this.verbosePrinting = verbosePrinting;
 		this.algorithmName = algorithmName;
 		this.dataSetName = dataSetName;
 		this.hyperParams = hyperParams;
-		this.verbosePrinting = verbosePrinting;
+		dateString = String.format("%d", d.getTime());
+		explicitResultWriter = new CSVReader("MSE_explicit_results.csv");
 	}
 	
 	public void addResult(int foldNumber, String guess, String actual) {
@@ -51,11 +58,11 @@ public class MeanSquaredError implements LossFunction {//implements the mean squ
 					double squaredDifference = Math.pow(guessResult-actualResult, 2);
 					mse += squaredDifference;
 				}
-				
+				mse = mse * 1/foldCounter; // average the rolling sum
 				if(verbosePrinting) {
 					System.out.printf("MSE for fold %s is %f%n", lastFoldNumber, Math.pow(mse, 0.5) * 1/foldCounter);
 				}
-				meanSquaredErrorPerFold.add(Math.pow(mse, 0.5) * 1/foldCounter);
+				meanSquaredErrorPerFold.add(mse);
 				mse = 0;
 				foldCounter = 0;
 				lastFoldNumber = currentFoldNumber;
@@ -64,6 +71,7 @@ public class MeanSquaredError implements LossFunction {//implements the mean squ
 			double actualResult = Double.parseDouble(results.get(i)[ACTUAL]);
 			double squaredDifference = Math.pow(guessResult-actualResult, 2);
 			if(verbosePrinting) {
+				explicitResultWriter.writer(String.format("%s,%s,%s,%f,%f,%f,%d", dataSetName, algorithmName,currentFoldNumber,actualResult,guessResult,squaredDifference, d.getTime()));
 				System.out.printf("Actual Result = %f, guessResult = %f, squareddiff = %f%n", actualResult, guessResult, squaredDifference);
 			}
 			mse += squaredDifference;
