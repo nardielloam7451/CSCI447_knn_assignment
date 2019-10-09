@@ -13,7 +13,7 @@ import java.util.Random;
  */
 public class TenFoldDriver {
 	/** The files. */
-	static String[] classificationFiles = {"abalone_data.csv", "car_data.csv", "segmentation_data.csv"};
+	static String[] classificationFiles = {"abalone_data.csv","car_data.csv", "segmentation_data.csv"};
 	static String[] regressionFiles = {"forestfires.csv", "winequality-red.csv", "winequality-white.csv", "machine_data.csv"};
 	/** Indexes for what will be training / test sets */
 	final int TRAININGSET = 0;
@@ -48,7 +48,7 @@ public class TenFoldDriver {
 //			System.out.printf("%n%n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%n");
 //		}
 		
-		for (String file : classificationFiles) {
+		for (String file : regressionFiles) {
 			new TenFoldDriver(file);
 			System.out.printf("%n%n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%n");
 			System.out.printf("%n%n~~~~~~~~~~~~~~~~ fin ~~~~~~~~~~~~~~~~~~%n");
@@ -113,7 +113,9 @@ public class TenFoldDriver {
 			//LossFunction knnz1 = new MeanSquaredError(false, "KNN", file, String.format("K=%d", k));
 			LossFunction ennz1 = new ZeroOneLoss(false, "ENN", file, String.format("validationSetFraction=%f|K=%d",validationSetFraction, k));
 			LossFunction cnnz1 = new ZeroOneLoss(false, "CNN", file, String.format("K=%d", k));
+			ZeroOneLoss kmeanz1= new ZeroOneLoss("K-means", file, String.format("K=%d",k));
 			//ZeroOneLoss cnnz1 = new ZeroOneLoss("CNN", file, String.format("K=%d", k));
+			LossFunction kmeans1 = new MeanSquaredError(false, "K-Means", file, String.format("K=%d", k));
 			Timer tenFoldTimer = new Timer(String.format("%n%nCross Validation: (%d/%d) --", hyperParamCounter - hyperParamMin + 1, hyperParamMax - hyperParamMin));
 			for (int i = 0; i < 10 /* folds */; i++) {
 				Timer t = new Timer(String.format("%s Fold %d timer", file, i));
@@ -125,15 +127,20 @@ public class TenFoldDriver {
 				int validationSetSize = (int)(trainingSet.size()*validationSetFraction) + 1;
 				//k = (int)(kRatio*trainingSet.size()) + 1;
 				System.out.printf("File:%s%nk = %d%nvalidationSetFrac = %f | Validation Set size = %d%n", file, k, validationSetFraction, validationSetSize);
-				knn(knnz1, cloneModel(trainingSet), cloneModel(testSet), String.format("%d %s", i, file), k, i);
-				enn(ennz1, cloneModel(trainingSet), cloneModel(testSet), String.format("%d %s", i, file), validationSetFraction, k, i);
-				cnn(cnnz1, cloneModel(trainingSet), cloneModel(testSet), String.format("%d %s", i, file), k, i);
+				//knn(knnz1, cloneModel(trainingSet), cloneModel(testSet), String.format("%d %s", i, file), k, i);
+				//enn(ennz1, cloneModel(trainingSet), cloneModel(testSet), String.format("%d %s", i, file), validationSetFraction, k, i);
+				//cnn(cnnz1, cloneModel(trainingSet), cloneModel(testSet), String.format("%d %s", i, file), k, i);
+				//k_meansClassify(kmeanz1, cloneModel(trainingSet), cloneModel(testSet), String.format("%d %s", i, file), validationSetFraction, k, i);
+				k_meansRegress(kmeans1, cloneModel(trainingSet), cloneModel(testSet), String.format("%d %s", i, file), validationSetFraction, k, i, 5);
+
 				t.stop();
 				System.out.printf("%n%n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%n");
 			}
-			knnz1.writeResults();
-			ennz1.writeResults();
-			cnnz1.writeResults();
+			//knnz1.writeResults();
+			//ennz1.writeResults();
+			//cnnz1.writeResults();
+			//kmeanz1.writeResults();
+			kmeans1.writeResults();
 			tenFoldTimer.stop();
 		}
 	}
@@ -215,7 +222,39 @@ public class TenFoldDriver {
 		System.out.printf("CNN score %d/%d (%f)%n", correctCount, correctCount+wrongCount, (double)(correctCount)/(correctCount+wrongCount));
 	}
 
-
+	private void k_meansClassify(LossFunction l1, ArrayList<ArrayList<Object>> trainingSet, ArrayList<ArrayList<Object>> testSet, String filename, double ValidationSetFraction, int k, int foldNumber) {
+		K_means kmeans= new K_means(trainingSet, testSet, k, null, null, ValidationSetFraction);
+		ArrayList<ArrayList<Object>> classSet;
+		kmeans.setFileName(filename);
+		kmeans.classClusters();
+		int correctCount=0;
+		int wrongCount=0;
+		for(int i=0;i<testSet.size();i++) {
+			String classificationResult = kmeans.classify(testSet.get(i));
+			String actualClass=testSet.get(i).get(testSet.get(i).size()-1).toString();
+			l1.addResult(foldNumber, classificationResult, actualClass);
+			if(classificationResult.equals(actualClass)) {
+				correctCount++;
+			}
+			else {
+				wrongCount++;
+			}
+		}
+		System.out.printf("K-Means score %d %d (%f)%n", correctCount, correctCount+wrongCount, (double)(correctCount)/(correctCount+wrongCount));
+	}
+	
+	private void k_meansRegress(LossFunction l1, ArrayList<ArrayList<Object>> trainingSet, ArrayList<ArrayList<Object>> testSet, String filename, double ValidationSetFraction, int k, int foldNumber, int clusters) {
+		K_means kmeans= new K_means(trainingSet, testSet, k, null, null, ValidationSetFraction);
+		ArrayList<ArrayList<Object>> regressSet;
+		kmeans.setFileName(filename);
+		kmeans.regressClusters(clusters);
+		for(int i=0;i<testSet.size();i++) {
+			String regressionResult = String.valueOf(kmeans.regress(testSet.get(i)));
+			String actualResult = testSet.get(i).get(testSet.get(i).size()-1).toString();
+			l1.addResult(foldNumber,regressionResult, actualResult);
+		}
+	}
+	
 	private void printMatrixSize(ArrayList<ArrayList<Object>> matrix) {
 		System.out.printf("Matrix Size (Number of rows): %d%n", matrix.size());
 		for (int rowNumber = 0; rowNumber < matrix.size(); rowNumber++) {
