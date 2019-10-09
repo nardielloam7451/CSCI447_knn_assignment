@@ -13,7 +13,7 @@ import java.util.Random;
  */
 public class TenFoldDriver {
 	/** The files. */
-	static String[] classificationFiles = {"abalone_data.csv","car_data.csv", "segmentation_data.csv"};
+	static String[] classificationFiles = {"abalone_data.csv", /*"car_data.csv", "segmentation_data.csv"*/};
 	static String[] regressionFiles = {"forestfires.csv", "winequality-red.csv", "winequality-white.csv", "machine_data.csv"};
 	/** Indexes for what will be training / test sets */
 	final int TRAININGSET = 0;
@@ -100,8 +100,8 @@ public class TenFoldDriver {
 		ArrayList<ArrayList<ArrayList<Object>>> partitionedDataSet = new ArrayList<ArrayList<ArrayList<Object>>>();
 		System.out.printf(    "~~~~~~~~~~~~~~File: %s", file);
 		System.out.printf("%n%n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%n");
-		int hyperParamMin = 1;
-		int hyperParamMax = 5;
+		int hyperParamMin = 15;
+		int hyperParamMax = 20;
 		for (int hyperParamCounter = hyperParamMin; hyperParamCounter < hyperParamMax; hyperParamCounter++) {
 			data = shuffleRows(data);
 			//double kRatio = randomizer.nextDouble()*0.105;
@@ -109,11 +109,12 @@ public class TenFoldDriver {
 			int k = hyperParamCounter;
 			double validationSetFraction = randomizer.nextFloat() * 0.75 + 0.04;
 			System.out.printf("HyperParams%nK=%d%nvalidationSetFraction=%f%nvalidationSetSize = %d%n---------------%n", k, validationSetFraction, (int)(makeTrainingAndTestSet(data, 0).get(TRAININGSET).size()*validationSetFraction) + 1);
-			ZeroOneLoss knnz1 = new ZeroOneLoss("KNN", file, String.format("K=%d", k));
-			//LossFunction knnz1 = new MeanSquaredError(false, "KNN", file, String.format("K=%d", k));
-			LossFunction ennz1 = new ZeroOneLoss(false, "ENN", file, String.format("validationSetFraction=%f|K=%d",validationSetFraction, k));
-			LossFunction cnnz1 = new ZeroOneLoss(false, "CNN", file, String.format("K=%d", k));
-			ZeroOneLoss kmeanz1= new ZeroOneLoss("K-means", file, String.format("K=%d",k));
+			//ZeroOneLoss knnz1 = new ZeroOneLoss("KNN", file, String.format("K=%d", k));
+			LossFunction knnz1 = new MeanSquaredError(false, "KNN", file, String.format("K=%d", k));
+			//LossFunction ennz1 = new ZeroOneLoss(false, "ENN", file, String.format("validationSetFraction=%f|K=%d",validationSetFraction, k));
+			LossFunction ennz1 = new MeanSquaredError(false, "ENN", file, String.format("validationSetFraction=%f|K=%d",validationSetFraction, k));
+			//LossFunction cnnz1 = new ZeroOneLoss(false, "CNN", file, String.format("K=%d", k));
+			LossFunction cnnz1 = new MeanSquaredError(false, "CNN", file, String.format("K=%d", k));
 			//ZeroOneLoss cnnz1 = new ZeroOneLoss("CNN", file, String.format("K=%d", k));
 			LossFunction kmeans1 = new MeanSquaredError(false, "K-Means", file, String.format("K=%d", k));
 			Timer tenFoldTimer = new Timer(String.format("%n%nCross Validation: (%d/%d) --", hyperParamCounter - hyperParamMin + 1, hyperParamMax - hyperParamMin));
