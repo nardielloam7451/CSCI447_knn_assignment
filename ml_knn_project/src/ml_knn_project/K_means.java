@@ -35,7 +35,7 @@ public class K_means extends ENN{
 	
 	public void regressClusters(int clusters) {
 		//this function takes prepares the algorithm for a regression data set.  
-		this.numClusters=clusters;//the clusters variable passed into the regress clusters uses the 
+		this.numClusters=(int)(0.25*clusters);//the clusters variable passed into the regress clusters uses the 
 		this.makeClusters(trainingSet, numClusters);
 	}
 	
@@ -53,7 +53,7 @@ public class K_means extends ENN{
 			clusterSet.add(trainSet.get(random));
 		}
 		  int iter=0; //sets the iterable variable, which determines the number of times we run through the algorithm. 
-		  while(iter<(5)) { //goes through the data set and creates the clusters.
+		  while(iter<(20)) { //goes through the data set and creates the clusters.
 			  for(int l=0;l<trainSet.size();l++) {//goes through and calculates the nearest neighbor between a specific point and a centeroid, then adds that to the specified cluster. 
 				  int nearestCluster=clusterSet.indexOf(getNearestNeighbors(1, clusterSet, trainSet.get(l)));
 				  clusterMap.put(trainSet.get(l), nearestCluster);
