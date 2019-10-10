@@ -21,14 +21,14 @@ public class Pam extends ENN {
 		ArrayList<ArrayList<Object>> cloneSet = new ArrayList<ArrayList<Object>> ();
 		for(int i=0;i<trainingSet.size();i++) {
 			cloneSet.add(trainingSet.get(i));
-		 }
+		}
 		super.buildENNModel();//builds the ENN model, which is necessary to get the cluster numbers. 
 		numClusters=super.getModelSize();//gets the cluster numbers for the data set.
 		//resets the training set back to the original set.
 		trainingSet=cloneSet;
 		this.medoidModel(trainingSet, numClusters);
 	}
-	
+
 	/**
 	 * Initialize clusters
 	 * @param trainSet the set to draw medoids from
@@ -49,24 +49,58 @@ public class Pam extends ENN {
 		}
 		return clusterModel;
 	}
-	
+
 	public void setClassifyNumberOfClusters() {
 		ArrayList<ArrayList<Object>> trainingSetClone = cloneModel(trainingSet);
 		numberOfClusters = getModelSize();
 		trainingSet = trainingSetClone;
 	}
-	
+
 	public void setRegressionNumberOfClusters() {
 		numberOfClusters = (int)(0.25 * trainingSet.size());
 	}
-	
-	public void buildClusteringModel() {
+
+	public void buildMedoidModel() {
 		ArrayList<ArrayList<Object>> medoidModel = medoidModel(trainingSet, numberOfClusters);
 		AbstractMap< ArrayList<Object>,Integer> medoidMap = buildMedoidMap(medoidModel);
-		
 
+		double distortion = calculateDistortion(medoidModel);
+		boolean run = true;
+
+		while (run) {
+			ArrayList<ArrayList<Object>> medoidModelClone = cloneModel(medoidModel);
+			for (int i = 0; i < medoidModel.size(); i++) {
+
+				for (int j = 0; j < trainingSet.size(); j++) {
+					while (medoidModel.contains(trainingSet.get(j)) && j < trainingSet.size()) {
+						j++;
+					}
+					// Just in case the last index of the training set is part of the medoid model, break here
+					if (j == trainingSet.size()) {
+						break;
+					}
+
+					// swap the current medoid with the element in the training set
+					ArrayList<Object> oldMedoid = medoidModel.get(i);
+					ArrayList<Object> newMedoid = trainingSet.get(j);
+					medoidModel.set(i, newMedoid);
+					double newDistortion = calculateDistortion(medoidModel);
+
+					if (newDistortion < distortion) {
+						distortion = newDistortion;
+					} else {
+						medoidModel.set(i, oldMedoid);
+					}
+				}
+			}
+			// check to see if medoids are done being optimized
+			if (medoidModelClone.equals(medoidModel)) {
+				run = false;
+			}
+		}
+		trainingSet = medoidModel;
 	}
-	
+
 	private AbstractMap< ArrayList<Object>,Integer> buildMedoidMap(ArrayList<ArrayList<Object>> medoidModel) {
 		AbstractMap< ArrayList<Object>,Integer> medoidMap = new HashMap<ArrayList<Object>,Integer>();
 		for (int i = 0; i < trainingSet.size(); i++) {
@@ -76,8 +110,9 @@ public class Pam extends ENN {
 		}
 		return medoidMap;
 	}
-	
-	private double calculateDistortion(AbstractMap< ArrayList<Object>,Integer> medoidMap, ArrayList<ArrayList<Object>> medoidModel) {
+
+	private double calculateDistortion(ArrayList<ArrayList<Object>> medoidModel) {
+		AbstractMap< ArrayList<Object>,Integer> medoidMap = buildMedoidMap(medoidModel);
 		double distortion = 0;
 		Object[] keys = medoidMap.keySet().toArray();
 		for (int i = 0; i < keys.length; i++) { 
@@ -86,7 +121,7 @@ public class Pam extends ENN {
 		}
 		return distortion;
 	}
-	
+
 	private ArrayList<ArrayList<Object>> cloneModel(ArrayList<ArrayList<Object>> modelToClone) {
 		ArrayList<ArrayList<Object>> clone = new ArrayList<ArrayList<Object>>(modelToClone.size());
 		for (int i = 0; i < modelToClone.size(); i++) {
