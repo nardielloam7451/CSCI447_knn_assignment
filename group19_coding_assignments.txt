@@ -1,8 +1,8 @@
 KNN: Robert Lewis, Regression done by Norhan Abbas
 CNN: Norhan Abbas
-ENN: Robert Lewis
+ENN: Norhan Abbas, additional refinement by Rob Lewis
 K-Means: Anthony Nardiello
-PAM: Anthony Nardiello
-Hyper Parameters: Robert Lewis
-Loss Functions: Anthony Nardiello, additional refinement done by Robert Lewis
+PAM: Rob Lewis, original clustering implementation by Anthony Nardiello
+Hyper Parameters and 10-Fold: Robert Lewis
+Loss Functions: Robert Lewis, original implementation and ideas done by Anthony Nardiello
 
