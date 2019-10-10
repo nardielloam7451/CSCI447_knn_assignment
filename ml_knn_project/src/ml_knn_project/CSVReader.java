@@ -80,4 +80,14 @@ public class CSVReader {
 			// return "error\t";
 		}
 	}
+
+	public String readLine() {
+		String s = null;
+		try {
+			s = fin.readLine();
+		} catch(IOException e) {
+			System.out.println("error reading from file " + e);
+		}
+		return s;
+	}
 }
