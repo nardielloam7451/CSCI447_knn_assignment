@@ -9,7 +9,7 @@ public class Pam extends ENN {
 	private int numClusters; //keeps track over the number of clusters in the array. 
 	private Random r = new Random();//creates a random number generator for selecting the centeroids initially. 
 	private int numberOfClusters;
-	
+	Distance euclid = new EuclidianDistance();
 	public Pam(ArrayList<ArrayList<Object>> trainingSet, ArrayList<ArrayList<Object>> testSet, int k,
 			ZeroOneLoss zeroOne, MeanSquaredError mse, double validationSetFraction) {
 		super(trainingSet, testSet, k, zeroOne, mse, validationSetFraction);
@@ -62,19 +62,28 @@ public class Pam extends ENN {
 	
 	public void buildClusteringModel() {
 		ArrayList<ArrayList<Object>> medoidModel = medoidModel(trainingSet, numberOfClusters);
-		AbstractMap< ArrayList<Object>,Integer> medoidMap = new HashMap<ArrayList<Object>,Integer>();
-		Distance euclid = new EuclidianDistance();
+		AbstractMap< ArrayList<Object>,Integer> medoidMap = buildMedoidMap(medoidModel);
 		
+
+	}
+	
+	private AbstractMap< ArrayList<Object>,Integer> buildMedoidMap(ArrayList<ArrayList<Object>> medoidModel) {
+		AbstractMap< ArrayList<Object>,Integer> medoidMap = new HashMap<ArrayList<Object>,Integer>();
 		for (int i = 0; i < trainingSet.size(); i++) {
 			// gets the first nearest neighbor
 			int nearestClusterIndex = medoidModel.indexOf( getNearestNeighbors(1, medoidModel, trainingSet.get(i)).get(0) );
 			medoidMap.put(trainingSet.get(i), nearestClusterIndex);
 		}
+		return medoidMap;
 	}
 	
-	private double calculateDistortion() {
+	private double calculateDistortion(AbstractMap< ArrayList<Object>,Integer> medoidMap, ArrayList<ArrayList<Object>> medoidModel) {
 		double distortion = 0;
-		
+		Object[] keys = medoidMap.keySet().toArray();
+		for (int i = 0; i < keys.length; i++) { 
+			double distance = euclid.getDistance((ArrayList<Object>)keys[i], medoidModel.get(medoidMap.get(keys[i]).intValue()));
+			distortion += distance;
+		}
 		return distortion;
 	}
 	
