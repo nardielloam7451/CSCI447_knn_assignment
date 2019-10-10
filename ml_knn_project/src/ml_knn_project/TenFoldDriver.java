@@ -4,6 +4,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Random;
 
 
@@ -13,8 +14,8 @@ import java.util.Random;
  */
 public class TenFoldDriver {
 	/** The files. */
-	static String[] classificationFiles = {"abalone_data.csv", "car_data_modified.csv", "segmentation_data.csv"};
-	static String[] regressionFiles = {"forestfires.csv", "winequality-red.csv", "winequality-white.csv", "machine_data.csv"};
+	static String[] classificationFiles = {/*"abalone_data.csv",*/"car_data_modified.csv"/*, "segmentation_data.csv", /*"simpleTestSet.csv"*/};
+	static String[] regressionFiles = {/*"forestfires.csv"/*, /*"winequality-red.csv", /*"winequality-white.csv",*/"machine_data.csv"};
 	/** Indexes for what will be training / test sets */
 	final int TRAININGSET = 0;
 	final int TESTSET = 1;
@@ -41,19 +42,19 @@ public class TenFoldDriver {
 		System.out.printf("%n%n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%n");
 		System.out.printf("%n%n~~~~~~~~~~~~~~~~ start ~~~~~~~~~~~~~~~~~%n");
 		System.out.printf("%n%n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%n");
-		//		for (String file : classificationFiles) {
-		//			new TenFoldDriver(file);
-		//			System.out.printf("%n%n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%n");
-		//			System.out.printf("%n%n~~~~~~~~~~~~~~~~ fin ~~~~~~~~~~~~~~~~~~%n");
-		//			System.out.printf("%n%n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%n");
-		//		}
+		PamTester p = new PamTester();
+//		for (String file : classificationFiles) {
+//			new TenFoldDriver(file);
+//
+//		}
 
-		for (String file : classificationFiles) {
-			new TenFoldDriver(file);
-			System.out.printf("%n%n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%n");
-			System.out.printf("%n%n~~~~~~~~~~~~~~~~ fin ~~~~~~~~~~~~~~~~~~%n");
-			System.out.printf("%n%n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%n");
-		}
+//		for (String file : regressionFiles) {
+//			new TenFoldDriver(file);
+//		}
+		
+		System.out.printf("%n%n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%n");
+		System.out.printf("%n%n~~~~~~~~~~~~~~~~ fin ~~~~~~~~~~~~~~~~~~%n");
+		System.out.printf("%n%n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%n");
 		programTimer.stop();
 	}
 
@@ -100,8 +101,8 @@ public class TenFoldDriver {
 		ArrayList<ArrayList<ArrayList<Object>>> partitionedDataSet = new ArrayList<ArrayList<ArrayList<Object>>>();
 		System.out.printf(    "~~~~~~~~~~~~~~File: %s", file);
 		System.out.printf("%n%n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%n");
-		int hyperParamMin = 15;
-		int hyperParamMax = 20;
+		int hyperParamMin = 3;
+		int hyperParamMax = 4;
 		for (int hyperParamCounter = hyperParamMin; hyperParamCounter < hyperParamMax; hyperParamCounter++) {
 			data = shuffleRows(data);
 			//double kRatio = randomizer.nextDouble()*0.105;
@@ -122,11 +123,15 @@ public class TenFoldDriver {
 					classification = true;
 				}
 			}
+			Date d = new Date();
+			String timeStamp = String.format("%d", d.getTime());
 			if (classification) {
+				
 				ZeroOneLoss knnz1 = new ZeroOneLoss("KNN", file, String.format("K=%d", k));
 				LossFunction ennz1 = new ZeroOneLoss(false, "ENN", file, String.format("validationSetFraction=%f|K=%d",validationSetFraction, k));
 				LossFunction cnnz1 = new ZeroOneLoss(false, "CNN", file, String.format("K=%d", k));
-				LossFunction kmeanz1 = new ZeroOneLoss(false, "K-Means", file, String.format("validationSetFraction=%f|K=%d",validationSetFraction, k));
+				//LossFunction kmeanz1 = new ZeroOneLoss(false, "K-Means", file, String.format("validationSetFraction=%f|K=%d",validationSetFraction, k));
+				LossFunction pamz1 = new ZeroOneLoss(false, "PAM", file, String.format("validationSetFraction=%fK=%d",validationSetFraction, k));
 				for (int i = 0; i < 10 /* folds */; i++) {
 					Timer t = new Timer(String.format("%s Fold %d timer", file, i));
 					System.out.printf("Fold index: %d%n", i);
@@ -140,13 +145,16 @@ public class TenFoldDriver {
 					knn(knnz1, cloneModel(trainingSet), cloneModel(testSet), String.format("%d %s", i, file), k, i);
 					enn(ennz1, cloneModel(trainingSet), cloneModel(testSet), String.format("%d %s", i, file), validationSetFraction, k, i);
 					cnn(cnnz1, cloneModel(trainingSet), cloneModel(testSet), String.format("%d %s", i, file), k, i);
-					k_meansClassify(kmeanz1, cloneModel(trainingSet), cloneModel(testSet), String.format("%d %s", i, file), validationSetFraction, k, i);
+					pamClassify(pamz1, cloneModel(trainingSet), cloneModel(testSet), String.format("%d %s", i, file),validationSetFraction, k, i, timeStamp);
+					//k_meansClassify(kmeanz1, cloneModel(trainingSet), cloneModel(testSet), String.format("%d %s", i, file), validationSetFraction, k, i);
 					t.stop();
 					System.out.printf("%n%n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%n");
 				}
 				knnz1.writeResults();
 				ennz1.writeResults();
 				cnnz1.writeResults();
+				pamz1.writeResults();
+				//kmeanz1.writeResults();
 			}
 			boolean regression = false;
 			for (int i = 0; i < regressionFiles.length; i++ ) {
@@ -156,7 +164,8 @@ public class TenFoldDriver {
 			}
 			if (regression) {
 				LossFunction knnz1 = new MeanSquaredError(false, "KNN", file, String.format("K=%d", k));
-				LossFunction kmeans1 = new MeanSquaredError(false, "K-Means", file, String.format("k=%d|validationSetFraction=%f", k, validationSetFraction));
+				//LossFunction kmeans1 = new MeanSquaredError(false, "K-Means", file, String.format("k=%d|validationSetFraction=%f", k, validationSetFraction));
+				LossFunction pamz1 = new MeanSquaredError(false, "PAM", file, String.format("validationSetFraction=%fK=%d",validationSetFraction, k));
 				for (int i = 0; i < 10 /* folds */; i++) {
 					Timer t = new Timer(String.format("%s Fold %d timer", file, i));
 					System.out.printf("Fold index: %d%n", i);
@@ -167,15 +176,15 @@ public class TenFoldDriver {
 					int validationSetSize = (int)(trainingSet.size()*validationSetFraction) + 1;
 					//k = (int)(kRatio*trainingSet.size()) + 1;
 					System.out.printf("File:%s%nk = %d%nvalidationSetFrac = %f | Validation Set size = %d%n", file, k, validationSetFraction, validationSetSize);
-					//knn(knnz1, cloneModel(trainingSet), cloneModel(testSet), String.format("%d %s", i, file), k, i);
-					//enn(ennz1, cloneModel(trainingSet), cloneModel(testSet), String.format("%d %s", i, file), validationSetFraction, k, i);
-					//cnn(cnnz1, cloneModel(trainingSet), cloneModel(testSet), String.format("%d %s", i, file), k, i);
-					//k_meansClassify(kmeanz1, cloneModel(trainingSet), cloneModel(testSet), String.format("%d %s", i, file), validationSetFraction, k, i);
-					k_meansRegress(kmeans1, cloneModel(trainingSet), cloneModel(testSet), String.format("%d %s", i, file), validationSetFraction, k, i, 5);
+					knn(knnz1, cloneModel(trainingSet), cloneModel(testSet), String.format("%d %s", i, file), k, i);
+					pamRegress(pamz1, cloneModel(trainingSet), cloneModel(testSet), String.format("%d %s", i, file),validationSetFraction, k, i, timeStamp);
+					//k_meansRegress(kmeans1, cloneModel(trainingSet), cloneModel(testSet), String.format("%d %s", i, file), validationSetFraction, k, i, 5);
 
 					t.stop();
 					System.out.printf("%n%n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%n");
 				}
+				knnz1.writeResults();
+				pamz1.writeResults();
 			}
 			tenFoldTimer.stop();
 		}
@@ -218,7 +227,7 @@ public class TenFoldDriver {
 	private void enn(LossFunction l1, ArrayList<ArrayList<Object>> trainingSet, ArrayList<ArrayList<Object>> testSet, String filename, double validationSetFraction, int k, int foldNumber) {
 		ENN enn = new ENN(trainingSet, testSet, k, null, null, validationSetFraction);
 		enn.setFileName(filename);
-		enn.buildModel();
+		enn.buildENNModel();
 		int correctCount = 0;
 		int wrongCount = 0;
 		for (int i = 0; i < testSet.size(); i++) {
@@ -252,15 +261,48 @@ public class TenFoldDriver {
 		System.out.printf("CNN score %d/%d (%f)%n", correctCount, correctCount+wrongCount, (double)(correctCount)/(correctCount+wrongCount));
 	}
 
-	private void k_meansClassify(LossFunction l1, ArrayList<ArrayList<Object>> trainingSet, ArrayList<ArrayList<Object>> testSet, String filename, double ValidationSetFraction, int k, int foldNumber) {
-		K_means kmeans= new K_means(trainingSet, testSet, k, null, null, ValidationSetFraction);
-		ArrayList<ArrayList<Object>> classSet;
-		kmeans.setFileName(filename);
-		kmeans.classClusters();
+	//	private void k_meansClassify(LossFunction l1, ArrayList<ArrayList<Object>> trainingSet, ArrayList<ArrayList<Object>> testSet, String filename, double ValidationSetFraction, int k, int foldNumber) {
+	//		K_means kmeans= new K_means(trainingSet, testSet, k, null, null, ValidationSetFraction);
+	//		ArrayList<ArrayList<Object>> classSet;
+	//		kmeans.setFileName(filename);
+	//		kmeans.classClusters();
+	//		int correctCount=0;
+	//		int wrongCount=0;
+	//		for(int i=0;i<testSet.size();i++) {
+	//			String classificationResult = kmeans.classify(testSet.get(i));
+	//			String actualClass=testSet.get(i).get(testSet.get(i).size()-1).toString();
+	//			l1.addResult(foldNumber, classificationResult, actualClass);
+	//			if(classificationResult.equals(actualClass)) {
+	//				correctCount++;
+	//			} else {
+	//				wrongCount++;
+	//			}
+	//		}
+	//		System.out.printf("K-Means score %d/%d (%f)%n", correctCount, correctCount+wrongCount, (double)(correctCount)/(correctCount+wrongCount));
+	//	}
+
+
+
+	//	private void k_meansRegress(LossFunction l1, ArrayList<ArrayList<Object>> trainingSet, ArrayList<ArrayList<Object>> testSet, String filename, double ValidationSetFraction, int k, int foldNumber, int clusters) {
+	//		K_means kmeans= new K_means(trainingSet, testSet, k, null, null, ValidationSetFraction);
+	//		ArrayList<ArrayList<Object>> regressSet;
+	//		kmeans.setFileName(filename);
+	//		kmeans.regressClusters(clusters);
+	//		for(int i=0;i<testSet.size();i++) {
+	//			String regressionResult = String.valueOf(kmeans.regress(testSet.get(i)));
+	//			String actualResult = testSet.get(i).get(testSet.get(i).size()-1).toString();
+	//			l1.addResult(foldNumber,regressionResult, actualResult);
+	//		}
+	//	}
+	private void pamClassify(LossFunction l1, ArrayList<ArrayList<Object>> trainingSet, ArrayList<ArrayList<Object>> testSet, String filename, double ValidationSetFraction, int k, int foldNumber, String timeStamp) {
+		Pam pam = new Pam(trainingSet, testSet, k, null, null, ValidationSetFraction, timeStamp);
+		pam.setClassifyNumberOfClusters();
+		pam.setFileName(filename);
+		pam.buildMedoidModel();
 		int correctCount=0;
 		int wrongCount=0;
-		for(int i=0;i<testSet.size();i++) {
-			String classificationResult = kmeans.classify(testSet.get(i));
+		for (int i = 0; i < testSet.size(); i++) {
+			String classificationResult = pam.classify(testSet.get(i));
 			String actualClass=testSet.get(i).get(testSet.get(i).size()-1).toString();
 			l1.addResult(foldNumber, classificationResult, actualClass);
 			if(classificationResult.equals(actualClass)) {
@@ -269,19 +311,27 @@ public class TenFoldDriver {
 				wrongCount++;
 			}
 		}
-		System.out.printf("K-Means score %d/%d (%f)%n", correctCount, correctCount+wrongCount, (double)(correctCount)/(correctCount+wrongCount));
+		System.out.printf("PAM score %d/%d (%f)%n", correctCount, correctCount+wrongCount, (double)(correctCount)/(correctCount+wrongCount));
 	}
-
-	private void k_meansRegress(LossFunction l1, ArrayList<ArrayList<Object>> trainingSet, ArrayList<ArrayList<Object>> testSet, String filename, double ValidationSetFraction, int k, int foldNumber, int clusters) {
-		K_means kmeans= new K_means(trainingSet, testSet, k, null, null, ValidationSetFraction);
-		ArrayList<ArrayList<Object>> regressSet;
-		kmeans.setFileName(filename);
-		kmeans.regressClusters(clusters);
-		for(int i=0;i<testSet.size();i++) {
-			String regressionResult = String.valueOf(kmeans.regress(testSet.get(i)));
-			String actualResult = testSet.get(i).get(testSet.get(i).size()-1).toString();
-			l1.addResult(foldNumber,regressionResult, actualResult);
+	
+	private void pamRegress(LossFunction l1, ArrayList<ArrayList<Object>> trainingSet, ArrayList<ArrayList<Object>> testSet, String filename, double ValidationSetFraction, int k, int foldNumber, String timeStamp) {
+		Pam pam = new Pam(trainingSet, testSet, k, null, null, ValidationSetFraction, timeStamp);
+		pam.setRegressionNumberOfClusters();
+		pam.setFileName(filename);
+		pam.buildMedoidModel();
+		int correctCount=0;
+		int wrongCount=0;
+		for (int i = 0; i < testSet.size(); i++) {
+			Double classificationResult = pam.regress(testSet.get(i));
+			Double actualClass = Double.parseDouble(testSet.get(i).get(testSet.get(i).size()-1).toString());
+			l1.addResult(foldNumber, classificationResult.toString(), actualClass.toString());
+			if(classificationResult.equals(actualClass)) {
+				correctCount++;
+			} else {
+				wrongCount++;
+			}
 		}
+		System.out.printf("PAM score %d/%d (%f)%n", correctCount, correctCount+wrongCount, (double)(correctCount)/(correctCount+wrongCount));
 	}
 
 
