@@ -23,7 +23,7 @@ public class ENN extends KNearestNeighbor{
 	}
 
 
-	public void buildModel() {
+	public void buildENNModel() {
 		int originalSize = trainingSet.size();
 		// Do not write any results out while building the model
 		writeResultsOut = false;

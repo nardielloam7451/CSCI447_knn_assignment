@@ -18,14 +18,19 @@ public class Timer {
 		if (!message.equals("")) {
 			System.out.print(message + " ");
 		}
-		System.out.printf("took %f seconds or %f minutes%n", nanoSecondsToSeconds(), nanoSecondsToMinutes());
+		System.out.printf("took %f seconds or %f minutes%n", nanoSecondsToSeconds(stop), nanoSecondsToMinutes(stop));
 	}
 	
-	private double nanoSecondsToMinutes() {
-		return nanoSecondsToSeconds()/60.0;
+	public double checkTimeInMinutes() {
+		long time = System.nanoTime();
+		return nanoSecondsToMinutes(time);
 	}
 	
-	private double nanoSecondsToSeconds() {
-		return (stop - start)/1000000000.0;
+	private double nanoSecondsToMinutes(long time) {
+		return nanoSecondsToSeconds(time)/60.0;
+	}
+	
+	private double nanoSecondsToSeconds(long time) {
+		return (time - start)/1000000000.0;
 	}
 }
