@@ -1,0 +1,26 @@
+Algorithm,Data Set,Hyper Parameters,0/1 Loss (Accuracy)
+CNN,car_data.csv,K=1,0.925928
+CNN,car_data.csv,K=10,0.860566
+CNN,car_data.csv,K=14,0.859383
+CNN,car_data.csv,K=14,0.845487
+CNN,car_data.csv,K=13,0.844885
+ENN,car_data.csv,validationSetFraction=0.250748|K=1,0.884837
+ENN,car_data.csv,validationSetFraction=0.445615|K=13,0.827527
+ENN,car_data.csv,validationSetFraction=0.421136|K=14,0.821196
+ENN,car_data.csv,validationSetFraction=0.353614|K=16,0.821162
+ENN,car_data.csv,validationSetFraction=0.313243|K=21,0.819404
+K-means,car_data.csv,K=18,0.847231
+K-means,car_data.csv,K=7,0.84143
+K-means,car_data.csv,K=7,0.84143
+K-means,car_data.csv,K=22,0.814236
+K-means,car_data.csv,K=22,0.814236
+KNN,car_data.csv,K=1,0.951979
+KNN,car_data.csv,K=3,0.935176
+KNN,car_data.csv,K=19,0.934632
+KNN,car_data.csv,K=18,0.931718
+KNN,car_data.csv,K=2,0.931126
+PAM,car_data.csv,K=8,0.842536
+PAM,car_data.csv,K=9,0.8385
+PAM,car_data.csv,K=12,0.837922
+PAM,car_data.csv,K=11,0.837918
+PAM,car_data.csv,K=7,0.835583

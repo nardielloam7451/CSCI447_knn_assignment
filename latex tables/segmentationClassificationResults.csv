@@ -1,0 +1,26 @@
+Algorithm,Data Set,Hyper Parameters,0/1 Loss (Accuracy)
+CNN,segmentation_data.csv,K=1,0.82381
+CNN,segmentation_data.csv,K=2,0.638095
+CNN,segmentation_data.csv,K=3,0.628571
+CNN,segmentation_data.csv,K=5,0.595238
+CNN,segmentation_data.csv,K=4,0.566667
+ENN,segmentation_data.csv,validationSetFraction=0.208549|K=1,0.77619
+ENN,segmentation_data.csv,validationSetFraction=0.206086|K=5,0.761905
+ENN,segmentation_data.csv,validationSetFraction=0.134956|K=3,0.752381
+ENN,segmentation_data.csv,validationSetFraction=0.296886|K=7,0.742857
+ENN,segmentation_data.csv,validationSetFraction=0.301114|K=6,0.738095
+K-means,segmentation_data.csv,K=18,0.833333
+K-means,segmentation_data.csv,K=12,0.761905
+K-means,segmentation_data.csv,K=3,0.761905
+K-means,segmentation_data.csv,K=19,0.757143
+K-means,segmentation_data.csv,K=25,0.70562
+KNN,segmentation_data.csv,K=1,0.842857
+KNN,segmentation_data.csv,K=2,0.804762
+KNN,segmentation_data.csv,K=8,0.8
+KNN,segmentation_data.csv,K=7,0.795238
+KNN,segmentation_data.csv,K=9,0.795238
+PAM,segmentation_data.csv,K=1,0.804762
+PAM,segmentation_data.csv,K=9,0.752381
+PAM,segmentation_data.csv,K=12,0.747619
+PAM,segmentation_data.csv,K=6,0.742857
+PAM,segmentation_data.csv,K=7,0.742857
