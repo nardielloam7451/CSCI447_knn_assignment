@@ -1,0 +1,7 @@
+Algorithm name,Data Set,HyperParameters,Mean Squared Error (MSE),Root Mean Squared Error (RMSE),Standard Deviations Away
+KNN,forestfires.csv,K=4,3682.563545,60.684129,0.953316
+KNN,forestfires.csv,K=5,3706.201716,60.878582,0.956371
+KNN,forestfires.csv,K=3,3875.457522,62.253173,0.977965
+PAM Regress,forestfires.csv,K=45,4185.986305,64.699199,1.016391
+PAM Regress,forestfires.csv,K=43,4187.302436,64.709369,1.016551
+PAM Regress,forestfires.csv,K=44,4189.678148,64.727723,1.016839

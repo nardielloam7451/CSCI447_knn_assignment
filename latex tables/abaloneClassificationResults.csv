@@ -1,0 +1,13 @@
+Algorithm Name,Data Set,Hyper Parameters,0/1 Loss (Accuracy)
+CNN,abalone_data.csv,K=22,0.266227
+CNN,abalone_data.csv,K=15,0.262864
+CNN,abalone_data.csv,K=18,0.261692
+ENN,abalone_data.csv,validationSetFraction=0.059321|K=13,0.263823
+ENN,abalone_data.csv,validationSetFraction=0.087138|K=22,0.26215
+ENN,abalone_data.csv,validationSetFraction=0.191671|K=7,0.260951
+KNN,abalone_data.csv,K=19,0.271725
+KNN,abalone_data.csv,K=22,0.270538
+KNN,abalone_data.csv,K=21,0.26694
+PAM,abalone_data.csv,K=8,0.233185
+PAM,abalone_data.csv,K=18,0.232233
+PAM,abalone_data.csv,K=17,0.231034

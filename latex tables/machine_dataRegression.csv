@@ -1,0 +1,7 @@
+Algorithm name,Data Set,HyperParameters,Mean Squared Error (MSE),Root Mean Squared Error (RMSE),Standard Deviations Away
+KNN,machine_data.csv,K=2,1224.961617,34.999452,0.225839
+KNN,machine_data.csv,K=3,2578.224875,50.776224,0.327641
+KNN,machine_data.csv,K=6,2728.301779,52.233148,0.337042
+PAM Regress,machine_data.csv,K=2,2724.925548,52.200819,0.336834
+PAM Regress,machine_data.csv,K=3,3192.792185,56.504798,0.364606
+PAM Regress,machine_data.csv,K=4,3869.375941,62.204308,0.401383

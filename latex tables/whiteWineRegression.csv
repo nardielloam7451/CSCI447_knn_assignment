@@ -1,0 +1,7 @@
+Algorithm name,Data Set,HyperParameters,Mean Squared Error (MSE),Root Mean Squared Error (RMSE),Standard Deviations Away
+KNN,winequality-white.csv,K=2,1.502817,1.225894,0.996159
+KNN,winequality-white.csv,K=37,1.548284,1.244301,1.011116
+KNN,winequality-white.csv,K=31,1.54983,1.244922,1.011621
+PAM Regress,winequality-white.csv,K=22,1.068711,1.033785,0.840051
+PAM Regress,winequality-white.csv,K=23,1.069411,1.034123,0.840326
+PAM Regress,winequality-white.csv,K=24,1.07029,1.034548,0.840672
