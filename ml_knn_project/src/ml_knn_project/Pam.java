@@ -6,7 +6,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Random;
 
-public class Pam extends ENN {
+public class Pam extends CNN {
 	private Random r = new Random();//creates a random number generator for selecting the centeroids initially. 
 	private int numberOfClusters;
 	private String timeStamp;
@@ -16,7 +16,7 @@ public class Pam extends ENN {
 	
 	public Pam(ArrayList<ArrayList<Object>> trainingSet, ArrayList<ArrayList<Object>> testSet, int k,
 			ZeroOneLoss zeroOne, MeanSquaredError mse, double validationSetFraction, String timeStamp) {
-		super(trainingSet, testSet, k, zeroOne, mse, validationSetFraction);
+		super(trainingSet, testSet, k, zeroOne, mse);
 		this.timeStamp = timeStamp;
 	}
 
